@@ -1,0 +1,66 @@
+#pragma once
+#include "GdipButton.h"
+#include "afxwin.h"
+
+// DlgOutput 对话框
+class CDriverAdaptorPlatfromCtrl;
+class CDlgOutput : public CDialogEx
+{
+	DECLARE_DYNAMIC(CDlgOutput)
+
+public:
+	CDlgOutput(CWnd* pParent = NULL);   // 标准构造函数
+	CDlgOutput(CDriverAdaptorPlatfromCtrl *driverCtrl);
+	virtual ~CDlgOutput();
+
+// 对话框数据
+	enum { IDD = IDD_DIALOG_OUTPUT };
+public:
+	void DrawBorder();
+	void SetButtonBackGrounds(CDC* pDC);
+public:
+	CRect m_rect;
+	int   m_splitNum;
+	int   m_nWidth;
+	int   m_nHight;
+	int   m_curIndex;
+	CStatic m_static;
+	CGdipButton m_recodeBtn;
+	CGdipButton m_captureImage;
+	CGdipButton m_cloudBtn;
+	CGdipButton m_voiceSound;
+	CGdipButton m_digitalZoom;
+	CGdipButton m_playBackBtn;
+	CGdipButton m_closeBtn;
+	CGdipButton m_cloudLeftUp;
+	CGdipButton m_cloudRightUp;
+	CGdipButton m_cloudLeftDown;
+	CGdipButton m_cloudRightDown;
+	CGdipButton m_cloudUp;
+	CGdipButton m_cloudDown;
+	CGdipButton m_cloudLeft;
+	CGdipButton m_cloudRight;
+	BOOL m_bFlag;
+	DWORD m_tickTime;
+private:
+	CDriverAdaptorPlatfromCtrl *m_pDriverCtrl;
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+
+	DECLARE_MESSAGE_MAP()
+public:
+	virtual BOOL OnInitDialog();
+	afx_msg void OnPaint();
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnBnClickedRecord();
+	afx_msg void OnBnClickedCapture();
+	afx_msg void OnBnClickedCloud();
+	afx_msg void OnBnClickedClose();
+
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	
+};

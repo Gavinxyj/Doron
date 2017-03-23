@@ -1,0 +1,30 @@
+﻿生成启动时间为 2016/12/13 星期二 9:52:32。
+     1>项目“E:\workSpace\DriverAdaptorPlatfrom\HIKVISION\HIKVISION.vcxproj”在节点 2 上(build 个目标)。
+       项目文件包含 ToolsVersion="14.0"。此工具集可能未知或缺失。在这种情况下，通过安装 MSBuild 的正确版本，或许可以解决此问题。否则，该 build 可能已因策略原因而被强制为某个特定 ToolsVersion。将该项目视为其已具有 ToolsVersion="4.0"。有关详细信息，请参阅 http://go.microsoft.com/fwlink/?LinkId=291333。
+     1>InitializeBuildStatus:
+         正在对“Release\HIKVISION.unsuccessfulbuild”执行 Touch 任务。
+       ClCompile:
+         e:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../include32 /I"../../include32/apache-log4cxx-0.10.0/src/main/include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _LIB /D _MBCS /D _AFXDLL /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt HkInterfaceImpl.cpp
+         HkInterfaceImpl.cpp
+     1>e:\workspace\driveradaptorplatfrom\hikvision\../../include32/HCNetSDK.h(1143): warning C4005: “ZOOM_IN”: 宏重定义
+                 e:\program files\microsoft visual studio 10.0\vc\atlmfc\include\afxpriv.h(477) : 参见“ZOOM_IN”的前一个定义
+     1>e:\workspace\driveradaptorplatfrom\hikvision\../../include32/HCNetSDK.h(1144): warning C4005: “ZOOM_OUT”: 宏重定义
+                 e:\program files\microsoft visual studio 10.0\vc\atlmfc\include\afxpriv.h(475) : 参见“ZOOM_OUT”的前一个定义
+     1>HkInterfaceImpl.cpp(422): warning C4996: 'strncat': This function or variable may be unsafe. Consider using strncat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 e:\Program Files\Microsoft Visual Studio 10.0\VC\include\string.h(175) : 参见“strncat”的声明
+     1>HkInterfaceImpl.cpp(493): warning C4996: 'strncat': This function or variable may be unsafe. Consider using strncat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 e:\Program Files\Microsoft Visual Studio 10.0\VC\include\string.h(175) : 参见“strncat”的声明
+     1>HkInterfaceImpl.cpp(517): warning C4996: 'strncat': This function or variable may be unsafe. Consider using strncat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 e:\Program Files\Microsoft Visual Studio 10.0\VC\include\string.h(175) : 参见“strncat”的声明
+       Lib:
+         e:\Program Files\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"E:\workSpace\DriverAdaptorPlatfrom\Release\HIKVISION.lib" HCNetSDK.lib log4cxx.lib /LIBPATH:../../Lib32/HKVISION /LIBPATH:../../Lib32 /NOLOGO /LTCG Release\HkInterfaceImpl.obj
+     1>log4cxx.lib(log4cxx.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR 已在 HCNetSDK.lib(HCNetSDK.dll) 中定义；已忽略第二个定义
+         HIKVISION.vcxproj -> E:\workSpace\DriverAdaptorPlatfrom\Release\HIKVISION.lib
+       FinalizeBuildStatus:
+         正在删除文件“Release\HIKVISION.unsuccessfulbuild”。
+         正在对“Release\HIKVISION.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“E:\workSpace\DriverAdaptorPlatfrom\HIKVISION\HIKVISION.vcxproj”(build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:07.32

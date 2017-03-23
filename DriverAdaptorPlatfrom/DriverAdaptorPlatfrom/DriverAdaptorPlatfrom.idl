@@ -1,0 +1,68 @@
+// DriverAdaptorPlatfrom.idl : ActiveX 控件项目的类型库源。
+
+// 此文件将由 MIDL 编译器工具处理以
+// 产生类型库(DriverAdaptorPlatfrom.tlb)，该类型库将成为
+// DriverAdaptorPlatfrom.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(FB1B6B75-C008-42B2-AA5B-E5CEE7A11DCC), version(1.0),
+  control ]
+library DriverAdaptorPlatfromLib
+{
+	importlib(STDOLE_TLB);
+
+	//  CDriverAdaptorPlatfromCtrl 的主调度接口
+	[ 
+		uuid(9BC3145A-8744-4ADC-BB2F-028901706DAC)	
+	]
+	dispinterface _DDriverAdaptorPlatfrom
+	{
+		properties:
+			[id(1)] SHORT windowId;
+			[id(15)] BSTR IPAddress;
+	methods:
+
+			[id(DISPID_ABOUTBOX)] void AboutBox();
+			[id(2)] SHORT OpenConnection(BSTR strIp, ULONG dwPort, BSTR userName, BSTR password, BSTR DeviceType, BSTR params);
+			[id(3)] SHORT StartRealPlay(BSTR params);
+			[id(4)] SHORT StopRealPlay(BSTR params);
+			[id(5)] SHORT CloseConnection(BSTR params);
+			[id(6)] SHORT CloudPatControl(ULONG dwCommand, SHORT startEndFlag, SHORT speed, BSTR params);
+			[id(7)] SHORT StartRecord(BSTR filePath, ULONG dwChannelId, BSTR DeviceType, BSTR params);
+			[id(8)] SHORT StopRecord(ULONG dwChannelId, BSTR DeviceType, BSTR params);
+			[id(9)] SHORT PlayBack(BSTR fileName, BSTR DeviceType, BSTR params);
+			[id(10)] SHORT StopPlayBack(BSTR DeviceType, BSTR params);
+			[id(11)] SHORT CapturePicture(BSTR filePath, SHORT imageType, SHORT imageSize, SHORT imageQuality, SHORT dwChannelId, BSTR DeviceType, BSTR params);
+			[id(12)] SHORT splitScreen(SHORT dwScreenNum);
+			[id(13)] SHORT Preset(SHORT dwPoint, BSTR DeviceType, BSTR params);
+			[id(14)] SHORT CallPreset(SHORT dwPoint, BSTR DeviceType, BSTR params);
+
+	};
+
+	//  CDriverAdaptorPlatfromCtrl 的事件调度接口
+
+	[ 
+		uuid(48EF2238-1E11-4157-8128-1E26B33BD1B4)	
+	]
+	dispinterface _DDriverAdaptorPlatfromEvents
+	{
+		properties:
+			//  事件接口没有任何属性
+
+		methods:
+			[id(1)] void IPADDRESS(BSTR ipAddr);
+	};
+
+	//  CDriverAdaptorPlatfromCtrl 的类信息
+	[
+		uuid(3A6B1F54-0BFB-4ED1-9504-B61910338BAE)
+	]
+	coclass DriverAdaptorPlatfrom
+	{
+		[default] dispinterface _DDriverAdaptorPlatfrom;
+		[default, source] dispinterface _DDriverAdaptorPlatfromEvents;
+	};
+
+};
