@@ -13,8 +13,7 @@
 // CVideoReal 对话框
 static BOOL bFullScreen = FALSE;
 static BOOL rFullScreen = FALSE;
-int num = 0;
-static bool bFlag = false;
+static BOOL bFlag = FALSE;
 IMPLEMENT_DYNAMIC(CVideoReal, CDialogEx)
 
 CVideoReal::CVideoReal(CDRVideoRealCtrl *pRealCtrl, CWnd* pParent /*=NULL*/)
@@ -135,6 +134,7 @@ void CVideoReal::OnLButtonDown(UINT nFlags, CPoint point)
 	m_pRealCtrl->m_prePoint = point;
 	m_pRealCtrl->m_preWndIndex = this->m_curIndex;
 	LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "OnLButtonDown m_curWndIndex = " << this->m_curIndex);
+	bFlag = TRUE;
 	/*MSG message;  
 	DWORD st = GetTickCount();  
     while (1)  
@@ -304,6 +304,7 @@ void CVideoReal::OnLButtonDblClk(UINT nFlags, CPoint point)
 			this->MoveWindow(0,0,m_rect.Width(),m_rect.Height());
 
 			bFullScreen = TRUE;
+			bFlag		= TRUE;
 		}
 		else
 		{
@@ -314,31 +315,20 @@ void CVideoReal::OnLButtonDblClk(UINT nFlags, CPoint point)
 			/ * 当鼠标滑动合并窗口，双击全屏窗口，再次双击恢复原来的显示风格,这里的bFlag标记是记录鼠标有
 			/ * 滑动的操作， 若这个时候调用了分屏操作则不在恢复原来的显示风格了* /
 			/ ************************************************************************/
-		//	if (bFlag)
-			{
-				/*std::vector<WINSTYLE>::iterator iter = m_pRealCtrl->m_oldRect.begin();
+		
 
-				for (; iter != m_pRealCtrl->m_oldRect.end(); iter ++)
-				{
-					m_pRealCtrl->m_pVideoReal[iter->nWindowId]->MoveWindow(iter->rect.left, iter->rect.top,iter->rect.right, iter->rect.bottom);
-					m_pRealCtrl->m_pVideoReal[iter->nWindowId]->DrawBorder();
-					m_pRealCtrl->m_pVideoReal[iter->nWindowId]->Invalidate();
-				}*/
+			POSITION pos = m_pRealCtrl->m_mapRect.GetStartPosition(); 
+			int nWindowId = 0;
+			PWINSTYLE winStyle = NULL;
+			while(pos) 
+			{ 
+				m_pRealCtrl->m_mapRect.GetNextAssoc(pos,nWindowId,winStyle);
+				m_pRealCtrl->m_pVideoReal[nWindowId]->MoveWindow(winStyle->rect.left, winStyle->rect.top,winStyle->rect.right, winStyle->rect.bottom);
+				m_pRealCtrl->m_pVideoReal[nWindowId]->DrawBorder();
+				m_pRealCtrl->m_pVideoReal[nWindowId]->Invalidate();
+			} 
 
-				POSITION pos = m_pRealCtrl->m_mapRect.GetStartPosition(); 
-				int nWindowId = 0;
-				PWINSTYLE winStyle = NULL;
-				while(pos) 
-				{ 
-					m_pRealCtrl->m_mapRect.GetNextAssoc(pos,nWindowId,winStyle);
-					m_pRealCtrl->m_pVideoReal[nWindowId]->MoveWindow(winStyle->rect.left, winStyle->rect.top,winStyle->rect.right, winStyle->rect.bottom);
-					m_pRealCtrl->m_pVideoReal[nWindowId]->DrawBorder();
-					m_pRealCtrl->m_pVideoReal[nWindowId]->Invalidate();
-				} 
-				//m_mapConnInfo.RemoveAll();
-				bFlag = false;
-			//	m_pRealCtrl->m_oldRect.clear();
-			}	
+			bFlag = FALSE;
 			bFullScreen = FALSE;
 			
 		}
@@ -676,6 +666,8 @@ void CVideoReal::OnLButtonUp(UINT nFlags, CPoint point)
 	GetWindowRect(&rect);
 	m_pRealCtrl->ScreenToClient(rect);
 	
+	if (!bFlag) return;
+
 	if (m_pRealCtrl->m_preWndIndex != m_curIndex && !m_played)
 	{
 		PWINSTYLE winStyleTemp = new WINSTYLE;
