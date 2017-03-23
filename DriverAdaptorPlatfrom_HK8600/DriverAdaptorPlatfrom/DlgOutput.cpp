@@ -1,0 +1,524 @@
+// DlgOutput.cpp : 实现文件
+//
+
+#include "stdafx.h"
+#include "DriverAdaptorPlatfrom.h"
+#include "DlgOutput.h"
+#include "afxdialogex.h"
+#include "DriverAdaptorPlatfromCtrl.h"
+#include "MemDC.h"
+static BOOL bFlag = FALSE;
+static BOOL bRecodeFlag = FALSE;
+static BOOL bFullScreen = FALSE;
+// DlgOutput 对话框
+
+IMPLEMENT_DYNAMIC(CDlgOutput, CDialogEx)
+
+CDlgOutput::CDlgOutput(CWnd* pParent /*=NULL*/)
+	: CDialogEx(CDlgOutput::IDD, pParent)
+{
+
+}
+CDlgOutput::CDlgOutput(CDriverAdaptorPlatfromCtrl *driverCtrl): m_pDriverCtrl(driverCtrl)
+{
+	m_rect = NULL;
+	m_bFlag = FALSE;
+}
+
+CDlgOutput::~CDlgOutput()
+{
+}
+
+void CDlgOutput::DoDataExchange(CDataExchange* pDX)
+{
+	CDialogEx::DoDataExchange(pDX);
+}
+
+
+BEGIN_MESSAGE_MAP(CDlgOutput, CDialogEx)
+	ON_WM_PAINT()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_CTLCOLOR()
+	ON_WM_CREATE()
+	ON_WM_LBUTTONDBLCLK()
+	ON_BN_CLICKED(4096, &CDlgOutput::OnBnClickedRecord)
+	ON_BN_CLICKED(4097, &CDlgOutput::OnBnClickedCapture)
+	ON_BN_CLICKED(4098, &CDlgOutput::OnBnClickedCloud)
+	ON_BN_CLICKED(1028, &CDlgOutput::OnBnClickedClose)
+	ON_WM_ERASEBKGND()
+	ON_WM_MOUSEWHEEL()
+END_MESSAGE_MAP()
+
+
+// DlgOutput 消息处理程序
+BOOL CDlgOutput::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// TODO:  在此添加额外的初始化
+
+	m_nHight = 0;
+	m_nWidth = 0;
+	m_curIndex = 0;
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// 异常: OCX 属性页应返回 FALSE
+}
+
+void CDlgOutput::OnPaint()
+{
+	CPaintDC dc(this); // device context for painting
+	// TODO: 在此处添加消息处理程序代码
+	//dc.FillSolidRect(0,0,m_nWidth,m_nHight,RGB(0,0,0));
+
+	DrawBorder();
+	CDialogEx::OnPaint();
+}
+
+void CDlgOutput::DrawBorder()
+{
+	
+	CPen *pOldPen = NULL;
+	CPen pen;
+	CRect rc;
+	GetWindowRect(&rc);
+	m_pDriverCtrl->ScreenToClient(&rc);
+	
+	if (this->m_curIndex == m_pDriverCtrl->m_curWndIndex)
+	{
+		pen.CreatePen(PS_SOLID,5,RGB(255, 127, 36));
+	}
+	else
+	{
+		pen.CreatePen(PS_SOLID,5,RGB(125, 125, 116));
+	}
+	rc.right  += 2;
+	rc.bottom += 2;
+
+	CDC *pDC = m_pDriverCtrl->GetDC();
+	pDC->SelectStockObject(NULL_BRUSH);
+	pOldPen = pDC->SelectObject(&pen);
+	pDC->Rectangle(&rc);
+	ReleaseDC(pDC);
+}
+
+void CDlgOutput::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	
+	m_pDriverCtrl->SetwindowId(this->m_curIndex);
+	m_pDriverCtrl->m_curWndIndex = this->m_curIndex;
+	PARAMS *pParam = NULL;
+	CString windowId = "";
+	windowId.Format("%d",m_pDriverCtrl->m_curWndIndex);
+	if (m_pDriverCtrl->m_mapFactory.Lookup(windowId,pParam))
+	{
+		if (NULL != pParam)
+		{
+			CString strRet;
+			strRet.Format("ip = %s|windowId = %d|cameraId = %d", pParam->chIp, this->m_curIndex, pParam->ncameraId);
+			m_pDriverCtrl->IPADDRESS(strRet);
+		}
+	}
+	else
+	{
+		CString strRet;
+		strRet.Format("ip = %s|windowId = %d|cameraId = %d", "null", this->m_curIndex, 0);
+		m_pDriverCtrl->IPADDRESS(strRet);
+	}
+	for (int nLoop = 0; nLoop < MAX_CHILDWND; nLoop ++)
+	{
+		m_pDriverCtrl->m_pDlgOutPut[nLoop]->DrawBorder();
+	}
+	
+	//MessageBox(windowId);
+	if(bFlag)
+	{
+		if (m_pDriverCtrl->m_mapFactory.Lookup(windowId,pParam))
+		{
+			if (NULL != pParam && ( 0 == strncmp(pParam->deviceType,"HK",2)))
+			{
+				pParam->pDriverAdaptorPat->CloudPatControl(11,1,5);
+				pParam->pDriverAdaptorPat->CloudPatControl(12,1,5);
+			}
+			else if (NULL != pParam && ( 0 == strncmp(pParam->deviceType,"DH",2)))
+			{
+				pParam->pDriverAdaptorPat->CloudPatControl(4,1,5);
+				pParam->pDriverAdaptorPat->CloudPatControl(5,1,5);
+			}
+		}
+	}
+
+	CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+
+HBRUSH CDlgOutput::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	// TODO:  在此更改 DC 的任何特性
+
+	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
+/*	CString strTemp = "";
+	strTemp.Format("ctrlId = %d, nCtlColor = %d",pWnd->GetDlgCtrlID(),nCtlColor);
+	if(nCtlColor == CTLCOLOR_STATIC)
+	{
+		MessageBox(strTemp);
+		pDC->SetBkColor(RGB(0,0,0));
+	}
+*/  
+//	HBRUSH hb = CreateSolidBrush(RGB(0,0,0));
+	
+	//return CreateSolidBrush(RGB(0,0,0));
+	return CreateSolidBrush(RGB(0,0,0));
+}
+
+
+int CDlgOutput::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+	// TODO:  在此添加您专用的创建代码
+	m_static.Create("",WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,CRect(0,0,0,0),this,1024);
+	//录像
+/*	m_recodeBtn.Create("",WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT,CRect(0,0,0,0),&m_btnContainer,4096);
+	m_recodeBtn.LoadStdImage(IDB_PNG_RECORD_NOR, _T("PNG"));
+	m_recodeBtn.LoadAltImage(IDB_PNG_RECORD_NOR, _T("PNG"));
+	m_recodeBtn.EnableToggle(TRUE);
+	m_recodeBtn.SetToolTipText("开始紧急录像");
+	m_recodeBtn.ShowWindow(SW_SHOW);
+	
+	//抓图
+	m_captureImage.Create("",WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT,CRect(0,0,0,0),this,4097);
+	m_captureImage.LoadStdImage(IDB_PNG_CAPTURE_NOR, _T("PNG"));
+	m_captureImage.LoadAltImage(IDB_PNG_CAPTURE_NOR, _T("PNG"));
+	m_captureImage.EnableToggle(TRUE);
+	m_captureImage.ShowWindow(SW_SHOW);
+
+	//云台控制
+	m_cloudBtn.Create("",WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT,CRect(0,0,0,0),this,4098);
+	m_cloudBtn.LoadStdImage(IDB_PNG_CLOUD_NOR, _T("PNG"));
+	m_cloudBtn.LoadAltImage(IDB_PNG_CLOUD_NOR, _T("PNG"));
+	m_cloudBtn.EnableToggle(TRUE);
+	m_cloudBtn.ShowWindow(SW_SHOW);
+	
+	//语言对讲
+	m_voiceSound.Create("",WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT,CRect(0,0,0,0),this,1025);
+	m_voiceSound.LoadStdImage(IDB_PNG_VOICE_NOR, _T("PNG"));
+	m_voiceSound.LoadAltImage(IDB_PNG_VOICE_NOR, _T("PNG"));
+	m_voiceSound.EnableToggle(TRUE);
+	m_voiceSound.ShowWindow(SW_SHOW);
+
+	//电子放大
+	m_digitalZoom.Create("",WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT,CRect(0,0,0,0),this,1026);
+	m_digitalZoom.LoadStdImage(IDB_PNG_DIGITAL_ZOOM, _T("PNG"));
+	m_digitalZoom.LoadAltImage(IDB_PNG_DIGITAL_ZOOM, _T("PNG"));
+	m_digitalZoom.EnableToggle(TRUE);
+	m_digitalZoom.ShowWindow(SW_HIDE);
+
+	//及时回放
+	m_playBackBtn.Create("",WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT,CRect(0,0,0,0),this,1027);
+	m_playBackBtn.LoadStdImage(IDB_PNG_BACK_NOR, _T("PNG"));
+	m_playBackBtn.LoadAltImage(IDB_PNG_BACK_NOR, _T("PNG"));
+	m_playBackBtn.EnableToggle(TRUE);
+	m_playBackBtn.ShowWindow(SW_HIDE);
+
+	//关闭
+	m_closeBtn.Create("",WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT,CRect(0,0,0,0),this,1028);
+	m_closeBtn.LoadStdImage(IDB_PNG_DELETE, _T("PNG"));
+	m_closeBtn.LoadAltImage(IDB_PNG_DELETE, _T("PNG"));
+	m_closeBtn.EnableToggle(TRUE);
+	m_closeBtn.ShowWindow(SW_HIDE);
+
+	//云台左上
+//	m_cloudLeftUp.CreateEx(NULL,AfxRegisterWndClass(NULL),"",WS_CHILD | WS_VISIBLE,CRect(0,0,32,32),&m_static,4099);
+	m_cloudLeftUp.Create("",WS_CHILD | WS_VISIBLE,CRect(0,0,32,32),&m_static,4099);
+	m_cloudLeftUp.LoadStdImage(IDB_PNG_LEFTUP, _T("PNG"));
+	m_cloudLeftUp.LoadAltImage(IDB_PNG_LEFTUP, _T("PNG"));
+	m_cloudLeftUp.EnableToggle(FALSE);
+	//::SetWindowPos(m_cloudLeftUp.GetSafeHwnd(),HWND_TOPMOST,0,0,32,32,SWP_NOMOVE | SWP_NOSIZE);
+	m_cloudLeftUp.ShowWindow(SW_HIDE);
+	//m_cloudLeftUp.SubclassDlgItem(4099,this);
+	m_cloudLeftUp.m_pDriverCtrl = m_pDriverCtrl;
+	m_cloudLeftUp.m_type = 1;
+	
+	
+	//云台右上
+	m_cloudRightUp.Create("",WS_CHILD | WS_VISIBLE,CRect(0,0,32,32),&m_static,4100);
+	m_cloudRightUp.LoadStdImage(IDB_PNG_RIGHTUP, _T("PNG"));
+	m_cloudRightUp.LoadAltImage(IDB_PNG_RIGHTUP, _T("PNG"));
+	m_cloudRightUp.EnableToggle(FALSE);
+	m_cloudRightUp.ShowWindow(SW_HIDE);
+	m_cloudRightUp.m_pDriverCtrl = m_pDriverCtrl;
+	m_cloudRightUp.m_type = 2;
+	//::SetWindowPos(m_cloudRightUp.GetSafeHwnd(),HWND_TOPMOST,0,0,32,32,SWP_NOMOVE | SWP_NOSIZE);
+	
+	 //云台左下
+	m_cloudLeftDown.Create("",WS_CHILD | WS_VISIBLE,CRect(0,0,32,32),&m_static,4101);
+	m_cloudLeftDown.LoadStdImage(IDB_PNG_LEFTDOWN, _T("PNG"));
+	m_cloudLeftDown.LoadAltImage(IDB_PNG_LEFTDOWN, _T("PNG"));
+	m_cloudLeftDown.EnableToggle(FALSE);
+	m_cloudLeftDown.ShowWindow(SW_HIDE);
+	m_cloudLeftDown.m_pDriverCtrl = m_pDriverCtrl;
+	m_cloudLeftDown.m_type = 3;
+	//::SetWindowPos(m_cloudLeftDown.GetSafeHwnd(),HWND_TOPMOST,0,0,32,32,SWP_NOMOVE | SWP_NOSIZE);
+	
+	//云台右下
+	m_cloudRightDown.Create("",WS_CHILD | WS_VISIBLE,CRect(0 ,0 ,32,32),&m_static,4102);
+	m_cloudRightDown.LoadStdImage(IDB_PNG_RIGHTDOWN, _T("PNG"));
+	m_cloudRightDown.LoadAltImage(IDB_PNG_RIGHTDOWN, _T("PNG"));
+	m_cloudRightDown.EnableToggle(FALSE);
+	m_cloudRightDown.ShowWindow(SW_HIDE);
+	m_cloudRightDown.m_pDriverCtrl = m_pDriverCtrl;
+	m_cloudRightDown.m_type = 4;
+	//::SetWindowPos(m_cloudRightDown.GetSafeHwnd(),HWND_TOPMOST,0,0,32,32,SWP_NOMOVE | SWP_NOSIZE);
+
+	//云台向上
+	m_cloudUp.Create("",WS_CHILD | WS_VISIBLE,CRect(0 ,0 ,32,32),&m_static,4103);
+	m_cloudUp.LoadStdImage(IDB_PNG_UP, _T("PNG"));
+	m_cloudUp.LoadAltImage(IDB_PNG_UP, _T("PNG"));
+	m_cloudUp.EnableToggle(FALSE);
+	m_cloudUp.ShowWindow(SW_HIDE);
+	m_cloudUp.m_pDriverCtrl = m_pDriverCtrl;
+	m_cloudUp.m_type = 5;
+	//::SetWindowPos(m_cloudUp.GetSafeHwnd(),HWND_TOPMOST,0,0,32,32,SWP_NOMOVE | SWP_NOSIZE);
+
+	//云台向下
+	m_cloudDown.Create("",WS_CHILD | WS_VISIBLE,CRect(0 ,0 ,32,32),&m_static,4104);
+	m_cloudDown.LoadStdImage(IDB_PNG_DOWN, _T("PNG"));
+	m_cloudDown.LoadAltImage(IDB_PNG_DOWN, _T("PNG"));
+	m_cloudDown.EnableToggle(FALSE);
+	m_cloudDown.ShowWindow(SW_HIDE);
+	m_cloudDown.m_pDriverCtrl = m_pDriverCtrl;
+	m_cloudDown.m_type = 6;
+	//::SetWindowPos(m_cloudDown.GetSafeHwnd(),HWND_TOPMOST,0,0,32,32,SWP_NOMOVE | SWP_NOSIZE);
+
+	LOG4CXX_INFO(m_pDriverCtrl->logger,"m_pDriverCtrl = " << m_pDriverCtrl->m_mapFactory.GetCount());
+	//云台向左
+	m_cloudLeft.Create("",WS_CHILD | WS_VISIBLE,CRect(0 ,0 ,32,32),&m_static,4105);
+	m_cloudLeft.LoadStdImage(IDB_PNG_LEFT, _T("PNG"));
+	m_cloudLeft.LoadAltImage(IDB_PNG_LEFT, _T("PNG"));
+	m_cloudLeft.EnableToggle(FALSE);
+	m_cloudLeft.ShowWindow(SW_HIDE);
+	m_cloudLeft.m_pDriverCtrl = m_pDriverCtrl;
+	m_cloudLeft.m_type = 7;
+	//::SetWindowPos(m_cloudLeft.GetSafeHwnd(),HWND_TOPMOST,0,0,32,32,SWP_NOMOVE | SWP_NOSIZE);
+
+	//云台向右
+	m_cloudRight.Create("",WS_CHILD | WS_VISIBLE,CRect(0 ,0 ,32,32),&m_static,4106);
+	m_cloudRight.LoadStdImage(IDB_PNG_RIGHT, _T("PNG"));
+	m_cloudRight.LoadAltImage(IDB_PNG_RIGHT, _T("PNG"));
+	m_cloudRight.EnableToggle(FALSE);
+	m_cloudRight.ShowWindow(SW_HIDE);
+	m_cloudRight.m_pDriverCtrl = m_pDriverCtrl;
+	m_cloudRight.m_type = 8;
+	//::SetWindowPos(m_cloudRight.GetSafeHwnd(),HWND_TOPMOST,0,0,32,32,SWP_NOMOVE | SWP_NOSIZE);
+	*/
+	return 0;
+}
+
+void CDlgOutput::OnBnClickedRecord()
+{
+	char *chBuf = new char[256];
+	ZeroMemory(chBuf,256);
+	strncpy(chBuf,"E:\\",sizeof("E:\\"));
+	if (!bRecodeFlag)
+	{
+		m_pDriverCtrl->m_pDriverAdaptorPat->StartRecord(chBuf,this->m_curIndex + 1);
+		bRecodeFlag = TRUE;
+	}
+	else
+	{
+		m_pDriverCtrl->m_pDriverAdaptorPat->StopRecord();
+		bRecodeFlag = FALSE;
+	}
+	delete chBuf;
+	chBuf = NULL;
+}
+
+
+void CDlgOutput::OnBnClickedCapture()
+{
+	char *chBuf = new char[256];
+	ZeroMemory(chBuf,256);
+	strncpy(chBuf,"E:\\",sizeof("E:\\"));
+	m_pDriverCtrl->m_pDriverAdaptorPat->CapturePicture(chBuf,1,3,0,0);
+	delete chBuf;
+	chBuf = NULL;
+}
+
+void CDlgOutput::OnBnClickedCloud()
+{
+	if (!bFlag)
+	{
+		
+		m_cloudLeftUp.ShowWindow(SW_SHOW);
+		m_cloudRightUp.ShowWindow(SW_SHOW);
+		m_cloudLeftDown.ShowWindow(SW_SHOW);
+		m_cloudRightDown.ShowWindow(SW_SHOW);
+		m_cloudUp.ShowWindow(SW_SHOW);
+		m_cloudDown.ShowWindow(SW_SHOW);
+		m_cloudLeft.ShowWindow(SW_SHOW);
+		m_cloudRight.ShowWindow(SW_SHOW);
+		bFlag = TRUE;
+	}
+	else
+	{
+		m_cloudLeftUp.ShowWindow(SW_HIDE);
+		m_cloudRightUp.ShowWindow(SW_HIDE);
+		m_cloudLeftDown.ShowWindow(SW_HIDE);
+		m_cloudRightDown.ShowWindow(SW_HIDE);
+		m_cloudUp.ShowWindow(SW_HIDE);
+		m_cloudDown.ShowWindow(SW_HIDE);
+		m_cloudLeft.ShowWindow(SW_HIDE);
+		m_cloudRight.ShowWindow(SW_HIDE);
+		bFlag = FALSE;
+	}
+	
+}
+
+BOOL CDlgOutput::OnEraseBkgnd(CDC* pDC)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CRect rect;
+	GetClientRect(rect);
+	CMemeryDC pDevC(pDC, rect);
+	SetButtonBackGrounds(pDevC);
+//	m_cloudLeftUp.SetWindowPos(&wndTopMost,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE);
+	return CDialogEx::OnEraseBkgnd(pDC);
+}
+
+void CDlgOutput::SetButtonBackGrounds(CDC* pDC)
+{
+/*
+	m_recodeBtn.SetBkGnd(pDC);
+	m_captureImage.SetBkGnd(pDC);
+	m_cloudLeftUp.SetBkGnd(pDC);
+	m_cloudRightUp.SetBkGnd(pDC);
+	m_cloudLeftDown.SetBkGnd(pDC);
+	m_cloudRightDown.SetBkGnd(pDC);
+	m_cloudUp.SetBkGnd(pDC);
+	m_cloudDown.SetBkGnd(pDC);
+	m_cloudLeft.SetBkGnd(pDC);
+	m_cloudRight.SetBkGnd(pDC);*/
+
+}
+
+void CDlgOutput::OnBnClickedClose()
+{
+//	BOOL bRet = m_pDriverCtrl->m_pDriverAdaptorPat->StopRealPlay();
+
+	//if (bRet)
+	/*{
+		m_captureImage.ShowWindow(SW_HIDE);
+		m_recodeBtn.ShowWindow(SW_HIDE);
+		m_cloudBtn.ShowWindow(SW_HIDE);
+		m_voiceSound.ShowWindow(SW_HIDE);
+		m_digitalZoom.ShowWindow(SW_HIDE);
+		m_playBackBtn.ShowWindow(SW_HIDE);
+		m_closeBtn.ShowWindow(SW_HIDE);
+	}*/
+}
+
+BOOL CDlgOutput::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (bFlag)
+	{
+		PARAMS *pParam = NULL;
+		CString windowId = "";
+		windowId.Format("%d",m_pDriverCtrl->m_curWndIndex);
+		if (m_pDriverCtrl->m_mapFactory.Lookup(windowId,pParam))
+		{
+			if (NULL != pParam && (0 == strncmp(pParam->deviceType,"HK",2)))
+			{
+				if (zDelta > 0)
+				{
+					pParam->pDriverAdaptorPat->CloudPatControl(11,0,5);
+				}
+				else
+				{
+					pParam->pDriverAdaptorPat->CloudPatControl(12,0,5);
+				}
+			}
+			else if (NULL != pParam && (0 == strncmp(pParam->deviceType,"DH",2)))
+			{
+				if (zDelta > 0)
+				{
+					pParam->pDriverAdaptorPat->CloudPatControl(4,0,5);
+				}
+				else
+				{
+					pParam->pDriverAdaptorPat->CloudPatControl(5,0,5);
+				}
+			}
+		}
+		
+	}
+	return CDialogEx::OnMouseWheel(nFlags, zDelta, pt);
+}
+
+void CDlgOutput::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+	
+	if (m_splitNum < 4)
+	{
+		return;
+	}
+	if(!bFullScreen)
+	{
+		for (int nLoop = 0; nLoop < MAX_CHILDWND; nLoop ++)
+		{
+			m_pDriverCtrl->m_pDlgOutPut[nLoop]->ShowWindow(SW_HIDE);
+		}
+		this->ShowWindow(SW_SHOW);
+		CRect rect;
+		//GetParent()->GetParent()->GetWindowRect(&rect);
+		CString strTemp = "";
+		strTemp.Format("x = %d, y = %d, bx = %d, by = %d", m_rect.left,m_rect.top, m_rect.bottom,m_rect.right);
+		//MessageBox(strTemp);
+		m_nWidth = m_rect.Width();
+		m_nHight = m_rect.Height();
+		this->MoveWindow(0,0,m_rect.Width(),m_rect.Height());
+		this->m_static.MoveWindow(0,0,m_rect.Width(),m_rect.Height());
+		//	m_static.MoveWindow(m_rect.left,m_rect.top, m_rect.right,m_rect.bottom);
+
+		//this->m_static.MoveWindow(0,25,m_nWidth,m_nHight - 25);
+		/*this->m_cloudLeftUp.MoveWindow(0,0,32,32);
+		this->m_cloudRightUp.MoveWindow(m_nWidth - 32,0,m_nWidth,32);
+		this->m_cloudLeftDown.MoveWindow(0,m_nHight - 32 - 25, 32,m_nHight);
+		this->m_cloudRightDown.MoveWindow(m_nWidth - 32,m_nHight - 32 - 25, m_nWidth,m_nHight);
+		this->m_cloudUp.MoveWindow(m_nHight / 2 - 16,0,32,32);
+		this->m_cloudDown.MoveWindow(m_nHight / 2 - 16,m_nHight - 32 - 25,32,m_nHight);
+		this->m_cloudLeft.MoveWindow(0,(m_nHight - 25) / 2 - 16, 32,32);
+		this->m_cloudRight.MoveWindow(m_nHight - 32, (m_nHight - 25) / 2 - 16,m_nWidth, 32);
+		this->m_recodeBtn.MoveWindow(m_nHight/2,5,20,20);
+		this->m_captureImage.MoveWindow(m_nHight/2 + (m_nHight/ 14) * 1,5,20,20);
+		this->m_cloudBtn.MoveWindow(m_nHight/2 + (m_nHight/ 14) * 2,5,20,20);
+		this->m_voiceSound.MoveWindow(m_nHight / 2 + (m_nHight/ 14) * 3,5, 20,20);
+		this->m_digitalZoom.MoveWindow(m_nHight / 2 + (m_nHight/ 14) * 4,5, 20,20);
+		this->m_playBackBtn.MoveWindow(m_nHight / 2 + (m_nHight/ 14) * 5,5, 20,20);
+		this->m_closeBtn.MoveWindow(m_nHight / 2 + (m_nHight/ 14) * 6,5, 20,20);*/
+
+		/*this->m_captureImage.ShowWindow(SW_SHOW);
+		this->m_recodeBtn.ShowWindow(SW_SHOW);
+		this->m_cloudBtn.ShowWindow(SW_SHOW);
+		this->m_voiceSound.ShowWindow(SW_SHOW);
+		this->m_digitalZoom.ShowWindow(SW_SHOW);
+		this->m_playBackBtn.ShowWindow(SW_SHOW);
+		this->m_closeBtn.ShowWindow(SW_SHOW);*/
+		//this->ShowWindow(SW_SHOW);
+		Invalidate();
+		bFullScreen = TRUE;
+	}
+	else
+	{
+		m_pDriverCtrl->splitScreen(m_splitNum);
+		bFullScreen = FALSE;
+	}
+	
+	//SetWindowPos(NULL,rect.left,rect.top,rect.Width(),rect.Height(),SWP_SHOWWINDOW);
+	CDialogEx::OnLButtonDblClk(nFlags, point);
+}
