@@ -1,0 +1,549 @@
+#pragma once
+#include <vector>
+#include "clientsdk_types.h"
+
+typedef struct _TALKINFO
+{
+	char devId[64];			//设备ID
+	char username[32];		//用户名
+	char password[32];		//密码
+	char clientMsId[32];	//客户端接入服务器ID
+	char clientMsIp[32];	//客户端接入服务器IP
+	char devMsId[32];		//设备接入服务器ID
+	int  clientMsPort;		//客户端接入服务器端口
+
+	_TALKINFO()
+	{
+		memset(devId, 0, 64);
+		memset(username, 0, 32);
+		memset(password, 0, 32);
+		memset(clientMsId, 0, 32);
+		memset(clientMsIp, 0, 32);
+		memset(devMsId, 0, 32);
+		clientMsPort = -1;
+	}
+
+	~_TALKINFO()
+	{
+		memset(devId, 0, 64);
+		memset(username, 0, 32);
+		memset(password, 0, 32);
+		memset(clientMsId, 0, 32);
+		memset(clientMsIp, 0, 32);
+		memset(devMsId, 0, 32);
+		clientMsPort = -1;
+	}
+}TALKINFO, *PTALKINFO;
+/*
+typedef struct _FILEINFO
+{
+	int  channel;			//通道ID
+	char fileName[256];
+	int  size;
+	char startTime[32];
+	char endTime[32];
+	char driveNo[8];
+	char startCluster[8];	//起始簇号
+	char fileType[8];		//录像文件类型
+	char pbtData[8];
+	char devId[64];			//前端设备ID
+
+	_FILEINFO()
+	{
+		channel = 0;
+		size	= 0;
+		memset(fileName, 0, 256);
+		memset(startTime, 0, 32);
+		memset(endTime, 0, 32);
+		memset(driveNo, 0, 8);
+		memset(startCluster, 0, 8);
+		memset(fileType, 0, 8);
+		memset(pbtData, 0, 8);
+		memset(devId, 0, 64);
+	}
+
+	~_FILEINFO()
+	{
+		channel = 0;
+		size	= 0;
+		memset(fileName, 0, 256);
+		memset(startTime, 0, 32);
+		memset(endTime, 0, 32);
+		memset(driveNo, 0, 8);
+		memset(startCluster, 0, 8);
+		memset(fileType, 0, 8);
+		memset(pbtData, 0, 8);
+		memset(devId, 0, 64);
+	}
+}FILEINFO,*PFILEINFO;*/
+typedef struct _DOWNLOADINFO
+{
+	char devId[64];			//设备ID
+	char caption[64];
+	char username[32];		//用户名
+	char password[32];		//密码
+	char clientMsId[32];		//客户端接入服务器ID
+	char clientMsIp[32];		//客户端接入服务器IP
+	int  clientMsPort;		//客户端接入服务器端口
+	char hostName[32];		//主机名称
+	char devMsId[32];		//设备接入服务器ID
+	int  playType;
+	char moduleS[64];		//目标模块ID
+	ClientFileInfo *pFileInfo;
+
+	_DOWNLOADINFO()
+	{
+		clientMsPort	= 0;
+		playType		= 0;
+		memset(devId, 64, 0);
+		memset(caption, 64, 0);
+		memset(username, 32, 0);
+		memset(password, 32, 0);
+		memset(devMsId, 32, 0);
+		memset(clientMsId, 32, 0);
+		memset(clientMsIp, 32, 0);
+		memset(hostName, 32, 0);
+		memset(moduleS, 64, 0);
+		pFileInfo	= NULL;
+	}
+	~_DOWNLOADINFO()
+	{
+		clientMsPort	= 0;
+		playType		= 0;
+		memset(devId, 64, 0);
+		memset(caption, 64, 0);
+		memset(username, 32, 0);
+		memset(password, 32, 0);
+		memset(devMsId, 32, 0);
+		memset(clientMsId, 32, 0);
+		memset(clientMsIp, 32, 0);
+		memset(hostName, 32, 0);
+		memset(moduleS, 64, 0);
+		
+		if (NULL != pFileInfo)
+		{
+			delete pFileInfo;
+			pFileInfo = NULL;
+		}
+	}
+	
+}DOWNLOADINFO, *PDOWNLOADINFO;
+
+typedef struct _CONNECTINFO
+{
+	char devId[64];			//设备ID
+	char objId[64];
+	char username[32];		//用户名
+	char password[32];		//密码
+	char clientMsId[32];		//客户端接入服务器ID
+	char clientMsIp[32];		//客户端接入服务器IP
+	int  clientMsPort;		//客户端接入服务器端口
+	char devMsId[32];		//设备接入服务器ID
+	int  channel;			//通道ID
+	int  dataType;			//码流类型
+	char hostCaption[32];
+	int  videoEnable;
+	int  switchTime;
+	char caption[32];
+	int  isAlarm;
+	char alarmMsg[32];
+	int  isAudio;
+	char authority[32];
+	int  actionPlanType;
+	int  manualMenu;
+	char hostName[32];		//主机名称
+	int  nLoginId;
+	RealPlayInfo info;
+	_CONNECTINFO()
+	{
+		clientMsPort = -1;
+		channel		 = -1;
+		dataType	 = -1;
+		videoEnable	 = -1;
+		switchTime	 = -1;
+		isAlarm	     = -1;
+		isAudio		 = -1;		
+		manualMenu	 = -1;
+		actionPlanType = -1;
+		nLoginId	 = -1;
+		memset(devId, 0, 64);
+		memset(objId, 0, 64);
+		memset(clientMsIp, 0, 32);	
+		memset(clientMsId, 0, 32);
+		memset(username, 0, 32);
+		memset(password, 0, 32);
+		memset(devMsId, 0, 32);
+		memset(hostName, 0, 32);
+		memset(hostCaption, 0, 32);
+		memset(caption, 0, 32);
+		memset(alarmMsg, 0 ,32);
+		memset(authority, 0, 32);
+		ZeroMemory(&info, sizeof(RealPlayInfo));
+	}
+	~_CONNECTINFO()
+	{
+		clientMsPort = -1;
+		channel		 = -1;
+		dataType	 = -1;
+		videoEnable	 = -1;
+		switchTime	 = -1;
+		isAlarm	     = -1;
+		isAudio		 = -1;		
+		manualMenu	 = -1;
+		nLoginId	 = -1;
+		actionPlanType = -1;
+		memset(devId, 0, 64);
+		memset(objId, 0, 64);
+		memset(clientMsIp, 0, 32);	
+		memset(clientMsId, 0, 32);
+		memset(username, 0, 32);
+		memset(password, 0, 32);
+		memset(devMsId, 0, 32);
+		memset(hostName, 0, 32);
+		memset(hostCaption, 0, 32);
+		memset(caption, 0, 32);
+		memset(alarmMsg, 0 ,32);
+		memset(authority, 0, 32);
+		ZeroMemory(&info, sizeof(RealPlayInfo));
+		ZeroMemory(&info, sizeof(RealPlayInfo));
+	}
+}CONNECTINFO, *PCONNECTINFO;
+
+typedef struct _SCREENINFO
+{
+	int x;                      //横列监数
+	int y;                      //竖列监数
+	int z;                      //特殊样式
+	std::vector<std::size_t>  btninfo;   //定制摁钮
+	std::vector<std::size_t>  mniinfo;   //定制菜单
+
+	_SCREENINFO()
+	{
+		x = 0;
+		y = 0;
+		z = 0;
+		btninfo.clear();
+		mniinfo.clear();
+	}
+	~_SCREENINFO()
+	{
+		x = 0;
+		y = 0;
+		z = 0;
+		btninfo.clear();
+		mniinfo.clear();
+	}
+}SCREENINFO, *PSCREENINFO;
+
+typedef struct _VIDEOPARAM
+{
+	int bright;
+	int contrast;
+	int saturation;
+	int hue;
+	int volumn;
+
+	_VIDEOPARAM()
+	{
+		bright		= 0;
+		contrast	= 0;
+		saturation	= 0;
+		hue			= 0;
+		volumn		= 0;
+	}
+
+	~_VIDEOPARAM()
+	{
+		bright		= 0;
+		contrast	= 0;
+		saturation	= 0;
+		hue			= 0;
+		volumn		= 0;
+	}
+}VIDEOPARAM, *PVIDEOPARAM;
+
+typedef struct _OTHERINFO
+{
+	char packtime[16];
+	char capturepath[256];
+	char downloadpath[256];
+
+	_OTHERINFO()
+	{
+		memset(packtime, 0, 16);
+		memset(capturepath, 0, 256);
+		memset(downloadpath, 0, 256);
+	}
+
+	~_OTHERINFO()
+	{
+		memset(packtime, 0, 16);
+		memset(capturepath, 0, 256);
+		memset(downloadpath, 0, 256);
+	}
+}OTHERINFO, *POTHERINFO;
+typedef struct _DISKPLANINFO
+{
+	char diskpolicytype[8];
+	char diskList[16];
+	char diskdeltype[8];
+	
+	_DISKPLANINFO()
+	{
+		memset(diskdeltype, 0, 8);
+		memset(diskpolicytype, 0, 8);
+		memset(diskList, 0, 16);
+	}
+	~_DISKPLANINFO()
+	{
+		memset(diskdeltype, 0, 8);
+		memset(diskpolicytype, 0, 8);
+		memset(diskList, 0, 16);
+	}
+}DISKPLANINFO,*PDISKPLANINFO;
+typedef struct _CAMERA_SWITCH
+{
+	//标题
+	char caption[32];
+	//通道
+	char ch[8];
+	//数据类型
+	char data_type[8];
+	//主机名称
+	char host_caption[32];
+	//设备ID
+	char host_id[128];
+	//objId
+	char objId[128];
+	//用户名
+	char username[32];
+	//密码
+	char password[32];
+	//客户端接入服务器ID
+	char client_sup_id[32];
+	//设备端接入服务器ID
+	char sup_id[32];
+	//客户端接入服务器ID
+	char client_sup_ip[32];
+	//客户端接入服务器端口
+	int  client_sup_port;
+
+	char cameraAuthoritys[64];
+	//切换时间
+	int  time;
+
+	int  index;
+
+	bool videoEnable;
+
+	_CAMERA_SWITCH()
+	{
+		memset(caption, 0, 32);
+		memset(ch, 0, 8);
+		memset(data_type, 0, 8);
+		memset(host_id, 0, 128);
+		memset(objId, 0, 128);
+		memset(username, 0, 32);
+		memset(password, 0, 32);
+		memset(client_sup_id, 0, 32);
+		memset(sup_id, 0, 32);
+		memset(client_sup_ip, 0, 32);
+		memset(cameraAuthoritys, 0, 64);
+		client_sup_port = 0;
+		time           = 0;
+		index			= 0;
+		videoEnable		= false;
+	}
+
+	~_CAMERA_SWITCH()
+	{
+		memset(caption, 0, 32);
+		memset(ch, 0, 8);
+		memset(data_type, 0, 8);
+		memset(host_id, 0, 128);
+		memset(objId, 0, 128);
+		memset(username, 0, 32);
+		memset(password, 0, 32);
+		memset(client_sup_id, 0, 32);
+		memset(sup_id, 0, 32);
+		memset(client_sup_ip, 0, 32);
+		memset(cameraAuthoritys, 0, 64);
+		client_sup_port = 0;
+		time           = 0;
+		index			= 0;
+		videoEnable		= false;
+	}
+}CAMERA_SWITCH, *PCAMERA_SWITCH;
+typedef struct _SWITCH_TIMES
+{
+	char strat[32];
+	char end[32];
+	char objId[128];
+	std::vector<PCAMERA_SWITCH> vecCameraSwitch;
+
+	_SWITCH_TIMES()
+	{
+		memset(strat, 0, 32);
+		memset(end, 0, 32);
+		memset(objId, 0, 128);
+		vecCameraSwitch.clear();
+	}
+
+	~_SWITCH_TIMES()
+	{
+		memset(strat, 0, 32);
+		memset(end, 0, 32);
+		memset(objId, 0, 128);
+		if (0 != vecCameraSwitch.size())
+		{
+			std::vector<PCAMERA_SWITCH>::iterator iter = vecCameraSwitch.begin();
+			for (; iter != vecCameraSwitch.end(); iter ++)
+			{
+				delete *iter;
+				*iter = NULL;
+			}
+			vecCameraSwitch.clear();
+		}
+	}
+
+}SWITCH_TIMES, *PSWITCH_TIMES;
+typedef struct _SWITCHS
+{
+	char objId[128];
+	char template_id[32];
+	std::vector<PSWITCH_TIMES> vecSwitchTimes;
+
+	_SWITCHS()
+	{
+		memset(objId, 0, 128);
+		memset(template_id, 0, 32);
+		vecSwitchTimes.clear();
+	}
+
+	~_SWITCHS()
+	{
+		memset(objId, 0, 128);
+		memset(template_id, 0, 32);
+		if (0 != vecSwitchTimes.size())
+		{
+			std::vector<PSWITCH_TIMES>::iterator iter = vecSwitchTimes.begin();
+			for (; iter != vecSwitchTimes.end(); iter ++)
+			{
+				delete *iter;
+				*iter = NULL;
+			}
+			vecSwitchTimes.clear();
+		}
+	}
+}SWITCHS,*PSWITCHS;
+
+typedef struct _TEMPLATELIST
+{
+	char ch[8];
+	std::vector<PSWITCHS> vecSwitchs;
+
+	_TEMPLATELIST()
+	{
+		memset(ch, 0, 8);
+		vecSwitchs.clear();
+	}
+
+	~_TEMPLATELIST()
+	{
+		if (0 != vecSwitchs.size())
+		{
+			std::vector<PSWITCHS>::iterator iter = vecSwitchs.begin();
+			for (; iter != vecSwitchs.end(); iter ++)
+			{
+				delete *iter;
+				*iter = NULL;
+			}
+			vecSwitchs.clear();
+		}
+	}
+
+}TEMPLATELIST, *PTEMPLATELIST;
+
+typedef struct _ITEMDATA
+{
+	char username[128];
+	char password[128];
+	char  client_sup_id[32];
+	char client_sup_ip[128];
+	int  client_sup_port;
+	int  ocxType;
+	int  userLevel;
+	char buttons[1024];
+	char menus[1024];
+	std::vector<PTEMPLATELIST>vecTemplateList;
+	POTHERINFO    pOtherInfo;
+	PDISKPLANINFO pDiskPlanInfo;
+	PSCREENINFO   pScreenInfo;
+	_ITEMDATA()
+	{
+		memset(username, 0, 128);
+		memset(password, 0, 128);
+		memset(client_sup_ip, 0, 128);
+		memset(buttons, 0, 1024);
+		memset(menus, 0, 1024);
+		memset(client_sup_id, 0, 32);
+		vecTemplateList.clear();
+		pOtherInfo		= NULL;
+		pDiskPlanInfo	= NULL;
+		pScreenInfo		= NULL;
+		client_sup_port = 0;
+		ocxType         = -1;
+		userLevel       = 0;
+	}
+
+    ~_ITEMDATA()
+	{
+		memset(username, 0, 128);
+		memset(password, 0, 128);
+		memset(client_sup_ip, 0, 128);
+		memset(buttons, 0, 1024);
+		memset(menus, 0, 1024);
+		memset(client_sup_id, 0, 32);
+		client_sup_port = 0;
+		ocxType         = -1;
+		userLevel		= 0;
+		if (0 != vecTemplateList.size())
+		{
+			std::vector<PTEMPLATELIST>::iterator iter = vecTemplateList.begin();
+			for (; iter != vecTemplateList.end(); iter ++)
+			{
+				delete *iter;
+				*iter = NULL;
+			}
+			vecTemplateList.clear();
+		}
+
+		if (NULL != pDiskPlanInfo)
+		{
+			delete pDiskPlanInfo;
+			pDiskPlanInfo = NULL;
+		}
+
+		if (NULL != pOtherInfo)
+		{
+			delete pOtherInfo;
+			pOtherInfo = NULL;
+		}
+
+		if (NULL != pScreenInfo)
+		{
+			delete pScreenInfo;
+			pScreenInfo = NULL;
+		}
+	}
+}ITEMDATA, *PITEMDATA;
+
+
+
+class CItemMgr
+{
+public:
+	CItemMgr(void);
+	~CItemMgr(void);
+};
+

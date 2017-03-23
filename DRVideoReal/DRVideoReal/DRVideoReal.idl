@@ -1,0 +1,93 @@
+// DRVideoReal.idl : ActiveX 控件项目的类型库源。
+
+// 此文件将由 MIDL 编译器工具处理以
+// 产生类型库(DRVideoReal.tlb)，该类型库将成为
+// DRVideoReal.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(D20038C9-1AE7-44E0-9A4D-D86BE12E3C17), version(1.0),
+  control ]
+library DRVideoRealLib
+{
+	importlib(STDOLE_TLB);
+
+	//  CDRVideoRealCtrl 的主调度接口
+	[ 
+		uuid(51131C17-F78B-4BB3-83B6-EFF0FCAC2B56)	
+	]
+	dispinterface _DDRVideoReal
+	{
+		properties:
+		methods:
+
+			[id(DISPID_ABOUTBOX)] void AboutBox();
+			[id(1)] SHORT Init(BSTR strJsonParam);
+			[id(2)] SHORT Capture(BSTR strPath);
+			[id(3)] SHORT CaptureAll(BSTR strPath);
+			[id(4)] SHORT PtzControl(BSTR strCmd, BSTR strParam, BSTR strStart);
+			[id(5)] SHORT SetVideoParam(SHORT bright, SHORT contrast, SHORT saturation, SHORT hue);
+			[id(6)] SHORT OpenSound(void);
+			[id(7)] SHORT CloseSound(void);
+			[id(8)] SHORT SetVolumn(SHORT volumn);
+			[id(9)] SHORT StartVideo(BSTR strJsonCamInfo);
+			[id(10)] SHORT StopVideo(void);
+			[id(11)] SHORT StartSwitchTemplate(BSTR strId);
+			[id(12)] SHORT StopSwitchSingle(void);
+			[id(13)] SHORT StartRecord(void);
+			[id(14)] SHORT StopRecord(void);
+			[id(15)] SHORT StartAllRecord(void);
+			[id(16)] SHORT StopAllRecord(void);
+			[id(17)] SHORT StartTalk(BSTR strInfo);
+			[id(18)] SHORT StopTalk(void);
+			[id(19)] SHORT StartSwitchSingle(BSTR strId);
+			[id(20)] SHORT StopSwitchTemplate(void);
+			[id(21)] SHORT SetScreenStyle(SHORT x, SHORT y, SHORT z);
+			[id(22)] SHORT BrowseFolder(BSTR strPath);
+			[id(23)] SHORT GetDownloadList(void);
+			[id(24)] SHORT StartDownload(BSTR strInfo);
+			[id(25)] SHORT StopDownload(SHORT fd);
+			[id(26)] SHORT SetRecordPlan(BSTR strInfo);
+			[id(27)] SHORT SetCapturePath(BSTR strInfo);
+			[id(28)] SHORT StopAllVideo(void);
+			[id(29)] SHORT MoveNext(void);
+			[id(30)] SHORT SelectFolder(BSTR strPath);
+			[id(31)] SHORT SetDownloadPath(BSTR strPath);
+			[id(32)] SHORT GetVideoParam(void);
+			[id(33)] SHORT ReleaseRes(void);
+			[id(34)] SHORT PlaySoundFile(BSTR strPath);
+			[id(35)] BSTR GetCurCameraObjId(void);
+			[id(36)] SHORT SetActive(SHORT num);
+			[id(37)] SHORT GetMonitorNum(void);
+			[id(38)] SHORT SetAlarmOut(BSTR strDevInfo, SHORT status);
+			[id(39)] SHORT GetDiskList(void);
+			[id(40)] SHORT CallHardPlay(BSTR strFileName, SHORT type);
+			[id(41)] SHORT SplitScreen(SHORT num);
+	};
+
+	//  CDRVideoRealCtrl 的事件调度接口
+
+	[ 
+		uuid(565438E1-65B3-4F8E-8C6E-A17BD6B97026)	
+	]
+	dispinterface _DDRVideoRealEvents
+	{
+		properties:
+			//  事件接口没有任何属性
+
+		methods:
+			[id(1)] void OnSysInfo(LONG cpu, LONG mem);
+	};
+
+	//  CDRVideoRealCtrl 的类信息
+	[
+		uuid(E457FB87-4610-43D1-B99F-56E108614880)
+	]
+	coclass DRVideoReal
+	{
+		[default] dispinterface _DDRVideoReal;
+		[default, source] dispinterface _DDRVideoRealEvents;
+	};
+
+};

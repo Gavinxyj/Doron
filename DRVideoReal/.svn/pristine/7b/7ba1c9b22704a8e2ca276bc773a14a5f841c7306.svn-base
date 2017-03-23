@@ -1,0 +1,600 @@
+// VideoReal.cpp : 实现文件
+//
+
+#include "stdafx.h"
+#include "DRVideoReal.h"
+#include "VideoReal.h"
+#include "afxdialogex.h"
+#include "DRVideoRealCtrl.h"
+#include "InterfaceImpl.h"
+#include "SliderControl.h"
+// CVideoReal 对话框
+static BOOL bFullScreen = FALSE;
+static BOOL rFullScreen = FALSE;
+int num = 0;
+bool bFlag = false;
+IMPLEMENT_DYNAMIC(CVideoReal, CDialogEx)
+
+CVideoReal::CVideoReal(CWnd* pParent /*=NULL*/)
+	: CDialogEx(CVideoReal::IDD, pParent)
+{
+	
+}
+
+CVideoReal::CVideoReal(CDRVideoRealCtrl *pRealCtrl):m_pRealCtrl(pRealCtrl)
+{
+	m_Menu.LoadMenuA(IDR_MENU_BAR);
+	m_curIndex = 0;
+	m_nWidth   = 0;
+	m_nHight   = 0;
+	m_splitNum = 0;
+	m_rect	   = 0;
+	m_nLoginId = -1;
+	m_nTalkId  = -1;
+	bActive	   = false;
+	m_played   = false;
+	m_oldWnd   = NULL;
+}
+CVideoReal::~CVideoReal()
+{
+	if (NULL != m_videoParam)
+	{
+		delete m_videoParam;
+		m_videoParam = NULL;
+	}
+}
+
+void CVideoReal::DoDataExchange(CDataExchange* pDX)
+{
+	CDialogEx::DoDataExchange(pDX);
+}
+
+
+BEGIN_MESSAGE_MAP(CVideoReal, CDialogEx)
+	ON_WM_LBUTTONDOWN()
+	ON_WM_CTLCOLOR()
+	ON_WM_ERASEBKGND()
+	ON_WM_LBUTTONDBLCLK()
+	ON_WM_RBUTTONDOWN()
+	ON_COMMAND(ID_MENU_32786, &CVideoReal::OnMenuStopVideo)
+	ON_COMMAND(ID_MENU_SINGLERECORD, &CVideoReal::OnMenuSingleRecord)
+	ON_COMMAND(ID_MENU_CAPTURE, &CVideoReal::OnMenuCapture)
+	ON_COMMAND(ID_MENU_FULLSCREEN, &CVideoReal::OnMenuFullscreen)
+	ON_COMMAND(ID_MENU_SINGLESWITCH, &CVideoReal::OnMenuSingleswitch)
+	ON_COMMAND(ID_MENU_SINGLESTOP, &CVideoReal::OnMenuSinglestop)
+	ON_WM_LBUTTONUP()
+	ON_COMMAND(ID_MENU_SETPARAM, &CVideoReal::OnMenuSetparam)
+END_MESSAGE_MAP()
+
+
+// CVideoReal 消息处理程序
+
+void CVideoReal::DrawBorder()
+{
+
+	CPen *pOldPen = NULL;
+	CPen pen;
+	CRect rc;
+	GetWindowRect(&rc);
+	m_pRealCtrl->ScreenToClient(&rc);
+
+	if (this->m_curIndex == m_pRealCtrl->m_curWndIndex)
+	{
+		pen.CreatePen(PS_SOLID,5,RGB(255, 127, 36));
+	}
+	else
+	{
+		pen.CreatePen(PS_SOLID,5,RGB(125, 125, 116));
+	}
+//	rc.right  += 2;
+//	rc.bottom += 2;
+
+	CDC *pDC = m_pRealCtrl->GetDC();
+	pDC->SelectStockObject(NULL_BRUSH);
+	pOldPen = pDC->SelectObject(&pen);
+	pDC->Rectangle(&rc);
+	ReleaseDC(pDC);
+}
+
+void CVideoReal::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	
+	m_pRealCtrl->m_curWndIndex = this->m_curIndex;
+
+	for (int nLoop = 0; nLoop < MAX_CHILDWND; nLoop ++)
+	{
+		m_pRealCtrl->m_pVideoReal[nLoop]->DrawBorder();
+	}
+	ClientToScreen(&point);
+	LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "OnLButtonDown point.x = " << point.x << "point.y = " <<point.y);
+	//CRect rect;
+	GetWindowRect(&m_rect1);
+	LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "rect.x = " << m_rect1.left<< ";rect.y = " <<m_rect1.top << ";rect.right =" << m_rect1.right << "rect.bottom" << m_rect1.bottom);
+	
+	m_nLeft = m_rect1.left;
+	m_nTop  = m_rect1.top;
+	/*MSG message;  
+	DWORD st = GetTickCount();  
+    while (1)  
+    {  
+        if (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))  
+        {  
+            TranslateMessage(&message);  
+            DispatchMessage(&message);  
+            if (message.message == WM_LBUTTONDBLCLK)  
+            {
+				LOG4CXX_INFO(CJsonParse::getInstance()->logger, "OnLButtonDown ---> OnLButtonDblClk");
+			
+				//::SendMessage(this->GetSafeHwnd(),WM_LBUTTONDBLCLK,0,0);
+                break; 
+            }  
+        }  
+        DWORD et = GetTickCount();  
+        if (et - st > 200)  
+        {  
+            num = 0;  
+			LOG4CXX_INFO(CJsonParse::getInstance()->logger, "OnLButtonDown");
+            break;  
+        }  
+    }  */
+	CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+
+HBRUSH CVideoReal::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	// TODO:  在此更改 DC 的任何特性
+
+	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
+	
+	return CreateSolidBrush(RGB(0,0,0));
+}
+
+
+BOOL CVideoReal::OnEraseBkgnd(CDC* pDC)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	
+	return CDialogEx::OnEraseBkgnd(pDC);
+}
+
+bool CVideoReal::Capture(LPCTSTR strPath)
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->Capture(strPath, m_nLoginId);
+
+	return bRet;
+}
+
+bool CVideoReal::StartRecord()
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	bool bRet = false;
+	if (-1 != m_nLoginId)
+	{
+		bool bRet = CInterfaceImpl::getInitance()->StartRecord(m_nLoginId);
+
+		LOG4CXX_DEBUG(CJsonParse::getInstance()->logger, "StartRecord this = " << this << ";m_nLoginId = " << m_nLoginId << "bRet = " << bRet);
+	}
+	
+	
+	return bRet;
+}
+
+bool CVideoReal::StopRecord()
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	bool bRet = false;
+	if (-1 != m_nLoginId)
+	{
+		
+		bRet = CInterfaceImpl::getInitance()->StopRecord(m_nLoginId);
+		LOG4CXX_DEBUG(CJsonParse::getInstance()->logger, "StopRecord this = " << this << ";m_nLoginId = " << m_nLoginId << "bRet = " << bRet);
+	}
+    
+
+	return bRet;
+}
+
+bool CVideoReal::StopVideo()
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+	
+	bool bRet = CInterfaceImpl::getInitance()->StopVideo(m_nLoginId);
+
+	LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "m_nLoginId = " << m_nLoginId << ";ret = " << bRet);
+	m_nLoginId = -1;
+
+	Invalidate();
+
+	if (bRet) m_played = false;
+	
+	return bRet;
+}
+
+bool CVideoReal::StartVideo(CONNECTINFO *connInfo)
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+	m_nLoginId = CInterfaceImpl::getInitance()->StartVideo(connInfo);
+	
+	if (-1 == m_nLoginId)  return false;
+		
+	
+	m_played = true;
+
+	return true;
+}
+
+void CVideoReal::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	LOG4CXX_INFO(CJsonParse::getInstance()->logger, "OnLButtonDblClk");
+	if (m_splitNum < 4)
+	{
+		return;
+	}
+	CRect rect;
+	GetWindowRect(&rect);
+	//ClientToScreen(&point);
+	ScreenToClient(&rect);
+	//if (rect.PtInRect(point))
+	
+	{
+		if(!bFullScreen)
+		{
+			for (int nLoop = 0; nLoop < MAX_CHILDWND; nLoop ++)
+			{
+				m_pRealCtrl->m_pVideoReal[nLoop]->ShowWindow(SW_HIDE);
+			}
+			this->ShowWindow(SW_SHOW);
+
+			m_nWidth = m_rect.Width();
+			m_nHight = m_rect.Height();
+			this->MoveWindow(0,0,m_rect.Width(),m_rect.Height());
+
+			Invalidate();
+			bFullScreen = TRUE;
+		}
+		else
+		{
+			m_pRealCtrl->SplitScreen(m_splitNum);
+			bFullScreen = FALSE;
+		}
+	
+	}
+	
+	CDialogEx::OnLButtonDblClk(nFlags, point);
+}
+
+bool CVideoReal::PtzControl(Client_PTZ_Command *cmd)
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->PtzControl(cmd, m_nLoginId);
+
+	return bRet;
+}
+
+bool CVideoReal::OpenSound()
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->OpenSound(m_nLoginId);
+
+	return bRet;
+}
+
+bool CVideoReal::CloseSound()
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->CloseSound(m_nLoginId);
+	
+	return bRet;
+}
+
+bool CVideoReal::StopSwitchSingle()
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->StopSwitchSingle(m_nLoginId,m_curIndex,0);
+
+	return bRet;
+}
+void CVideoReal::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	ClientToScreen(&point);
+	//if (rect.PtInRect(point))
+	{
+		m_Menu.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
+
+	}
+	CDialogEx::OnRButtonDown(nFlags, point);
+}
+
+bool CVideoReal::SetVolumn(int nVolumn)
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+	
+	bool bRet = CInterfaceImpl::getInitance()->SetVolumn(nVolumn, m_nLoginId);
+
+	return bRet;
+}
+
+bool CVideoReal::StartTalk()
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->StartTalk(m_nTalkId);
+
+	return bRet;
+}
+
+bool CVideoReal::StopTalk()
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->StopTalk(m_nTalkId);
+
+	return bRet;
+}
+
+bool CVideoReal::SetVideoParam(int bright, int contrast, int saturation, int hue)
+{
+	bool bRet = false;
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	if (-1 != m_nLoginId)
+	{
+	    bRet = CInterfaceImpl::getInitance()->SetVideoParam(bright, contrast, saturation, hue, m_nLoginId);
+	}
+	return bRet;
+}
+
+bool CVideoReal::GetVideoParam()
+{
+	bool bRet = false;
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	if (-1 != m_nLoginId)
+	{
+		if (NULL != m_videoParam)
+		{
+			delete m_videoParam;
+			m_videoParam = NULL;
+		}
+		m_videoParam = new VIDEOPARAM;
+		bRet = CInterfaceImpl::getInitance()->GetVideoParam(m_nLoginId, m_videoParam);
+	}
+	return bRet;
+}
+void CVideoReal::OnMenuStopVideo()
+{
+	// TODO: 在此添加命令处理程序代码
+	bool bRet = false;
+
+	if (NULL != CInterfaceImpl::getInitance())
+	{
+		bRet = CInterfaceImpl::getInitance()->StopVideo(m_nLoginId);
+		m_nLoginId = -1;
+		Invalidate();
+	}
+
+	if (bRet) m_played = false;
+
+	if (!bRet) MessageBox("停止视频失败!");
+}
+
+
+void CVideoReal::OnMenuSingleRecord()
+{
+	// TODO: 在此添加命令处理程序代码
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return ;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->StartRecord(m_nLoginId);
+	
+	if (!bRet) MessageBox("开始录像失败!");
+	
+}
+
+
+void CVideoReal::OnMenuCapture()
+{
+	// TODO: 在此添加命令处理程序代码
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return ;
+	}
+
+	bool bRet = false;
+	if (this->m_played)
+	{
+		if (CJsonParse::getInstance()->m_pItemData->pOtherInfo->capturepath[0] == '\0')
+		{
+			CInterfaceImpl::getInitance()->Capture(m_pRealCtrl->m_curMoudlePath, m_nLoginId);
+		}
+		else
+		{
+			bRet = CInterfaceImpl::getInitance()->Capture(CJsonParse::getInstance()->m_pItemData->pOtherInfo->capturepath, m_nLoginId);
+		}
+	}
+
+	if (!bRet) MessageBox("截屏失败!");
+}
+
+
+void CVideoReal::OnMenuFullscreen()
+{
+	// TODO: 在此添加命令处理程序代码
+	int nWidth = GetSystemMetrics(SM_CXSCREEN);
+	int nHight = GetSystemMetrics(SM_CYSCREEN);
+	
+	if (!rFullScreen)
+	{
+		m_oldWnd = GetParent();
+		SetParent(GetDesktopWindow());
+		//this->SetWindowPos(&wndTop,0,0, nWidth, nHight, SWP_SHOWWINDOW);
+		ModifyStyle(WS_CAPTION, 0, 0);
+		SendMessage(WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+		ShowWindow(SW_SHOWMAXIMIZED);
+
+		m_Menu.GetSubMenu(0)->CheckMenuItem(ID_MENU_FULLSCREEN, MF_CHECKED|MF_BYCOMMAND);
+		rFullScreen = TRUE;
+	}
+	else
+	{
+		if (NULL != m_oldWnd)
+		{
+			SetParent(m_oldWnd);
+			ModifyStyle(WS_CAPTION,0,0);
+			SendMessage(WM_SYSCOMMAND, SC_SCREENSAVE, 0);
+			ShowWindow(SW_SHOWNORMAL);
+			m_Menu.GetSubMenu(0)->CheckMenuItem(ID_MENU_FULLSCREEN, MF_UNCHECKED|MF_BYCOMMAND);
+			rFullScreen = FALSE;
+		}
+	}
+	
+	
+
+	//LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "strMenu = " << strMenu);
+}
+
+
+void CVideoReal::OnMenuSingleswitch()
+{
+	// TODO: 在此添加命令处理程序代码
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return ;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->StartSwitchSingle("id");
+
+	if (!bRet) MessageBox("单帧切换命令失败!");
+}
+
+
+
+void CVideoReal::OnMenuSinglestop()
+{
+	// TODO: 在此添加命令处理程序代码
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return ;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->StopSwitchSingle(m_nLoginId,m_curIndex,0);
+
+	if (!bRet) MessageBox("停止单帧切换失败!");
+}
+
+
+void CVideoReal::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	/*LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "OnLButtonUp point.x = " << point.x << "point.y = " <<point.y);
+	
+	CRect rect;
+	GetWindowRect(&rect);
+	LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "OnLButtonUp rect.x = " << rect.left<< ";rect.y = " <<rect.top << ";rect.right =" << rect.right << "rect.bottom" << rect.bottom);
+	
+	ClientToScreen(&point);
+
+	if (m_rect1.PtInRect(point))
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger,"在范围内");
+		return;
+	}
+
+	for (int nLoop = 0; nLoop < MAX_CHILDWND; nLoop ++)
+	{
+		m_pRealCtrl->m_pVideoReal[nLoop]->ShowWindow(SW_HIDE);
+	}
+	this->ShowWindow(SW_SHOW);
+
+	MoveWindow(m_rect1.left, m_rect1.top, rect.Width() * 2, rect.Height() * 2);
+	DrawBorder();
+	Invalidate();*/
+	
+	CDialogEx::OnLButtonUp(nFlags, point);
+}
+
+void CVideoReal::OnMenuSetparam()
+{
+	// TODO: 在此添加命令处理程序代码
+	CSliderControl sliderDlg(this);
+	
+	sliderDlg.DoModal();
+}

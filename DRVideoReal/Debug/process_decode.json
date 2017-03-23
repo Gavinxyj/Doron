@@ -1,0 +1,12 @@
+{"process_decode":
+	[
+		{"video_type":1,"real_play":0,"hard_play":0,"push_play":0},
+		{"video_type":2,"real_play":0,"hard_play":0,"push_play":0},
+		{"video_type":3,"real_play":0,"hard_play":0,"push_play":0},
+		{"video_type":4,"real_play":0,"hard_play":0,"push_play":0},
+		{"video_type":8,"real_play":1,"hard_play":0,"push_play":1},
+		{"video_type":10,"real_play":1,"hard_play":0,"push_play":1},
+		{"video_type":15,"real_play":1,"hard_play":0,"push_play":1},
+		{"video_type":32,"real_play":1,"hard_play":0,"push_play":1}
+	]
+}

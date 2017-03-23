@@ -1,0 +1,28 @@
+{"video_libs":
+        [
+           {"type":1,"name":"win32_video_hik.dll"}
+          ,{"type":2,"name":"win32_video_dh.dll"}
+          ,{"type":3,"name":"win32_video_td.dll"}
+          ,{"type":4,"name":"win32_video_tdalarm.dll"}
+		  ,{"type":19,"name":"win32_video_sip_669.dll"}
+        ],
+ "ctrl_libs":
+        [
+           {"type":1,"name":"ctrl_ptz_pelco_p.dll"}
+          ,{"type":2,"name":"ctrl_ptz_pelco_d.dll"}
+          ,{"type":3,"name":"ctrl_ptz_tc615_p.dll"}
+          ,{"type":257,"name":"ctrl_dome_pelco_p.dll"}
+          ,{"type":258,"name":"ctrl_ptz_pelco_d.dll"}
+          ,{"type":259,"name":"ctrl_dome_tiandy.dll"}
+        ],
+ "search_libs":
+        [
+           {"type":3,"name":"win32_search_td.dll"}
+        ],
+ "vod_libs":
+        [
+		   		 {"type":1,"name":"win32_vod_player_hik.dll"}
+          ,{"type":2,"name":"win32_vod_player_dh.dll"}
+          ,{"type":3,"name":"win32_vod_player_td.dll"}
+        ]
+}

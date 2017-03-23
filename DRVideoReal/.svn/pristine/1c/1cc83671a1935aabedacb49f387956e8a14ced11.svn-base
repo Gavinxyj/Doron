@@ -1,0 +1,90 @@
+#pragma once
+#include "clientplayer.h"
+#include "clientsdk.h"
+#include "ItemMgr.h"
+#include "JsonParse.h"
+class CInterfaceImpl
+{
+private:
+	CInterfaceImpl(void);
+	~CInterfaceImpl(void);
+	static CInterfaceImpl * m_pInterfaceImpl;
+public:
+	static CInterfaceImpl * getInitance();
+	long m_fd;
+	int m_nLoginId;
+public:
+	//抓图
+	bool Capture(LPCTSTR strPath, int nLoginId);
+	//开始预览
+	long StartVideo(CONNECTINFO *connInfo);
+	//停止预览
+	bool StopVideo(int nLoginId);
+	//登陆设备
+	bool LoginDev(PITEMDATA itemData);
+	//初始化设备
+	bool InitMsSdk();
+	//云台控制
+	bool PtzControl(Client_PTZ_Command *cmd, int nLoginId);
+	//设置视频参数
+	bool SetVideoParam(int bright, int contrast, int saturation, int hue, int nLoginId);
+	//打开声音
+	bool OpenSound(int nLoginId);
+	//关闭声音
+	bool CloseSound(int nLoginId);
+	//设置音量
+	bool SetVolumn(int volumn, int nLoginId);
+	//单屏切换
+	bool StartSwitchSingle(LPCTSTR strId);
+	//结束单屏切换
+	bool StopSwitchSingle(int nLoginId, int nWindowId, int nTiemOut);
+	//停止单屏切换
+	bool StopSwitchTemplate();
+	//开始录像
+	bool StartRecord(int nLoginId);
+	//停止录像
+	bool StopRecord(int nLoginId);
+	//开始对讲
+	bool StartTalk(int nTalkId);
+	//停止对讲
+	bool StopTalk(int takkId);
+	//开始切换模式
+	bool StartSwitchTemplate();
+	//设置显示样式
+	bool SetScreenStyle(int x, int y, int z);
+	//开始下载文件
+	bool StartDownload(LPCTSTR strInfo);
+	//停止下载文件
+	bool StopDownload(int nFd);
+	//设置录像策略
+	bool SetRecordPlan(LPCTSTR strInfo);
+	//设置抓拍路径
+	bool SetCapturePath(LPCTSTR strInfo);
+	//停止所有视频预览
+	bool StopAllVideo();
+	//切换到下一个窗口
+	bool MoveNext();
+	//选择文件夹
+	bool SelectFolder();
+	//设置下载路径
+	bool SetDownloadPath(LPCTSTR strInfo);
+	//获取视频参数
+	bool GetVideoParam(int nLoginId, VIDEOPARAM *m_videoParam);
+	//释放资源
+	bool ReleaseRes();
+	//播放声音文件
+	bool PlaySoundFile(LPCTSTR strInfo);
+	//获取摄像机ID
+	bool GetCurCameraObjId();
+	//设置焦点
+	bool SetActive(int num);
+	//获取当前监号
+	bool GetMonitorNum();
+	//设置报警输出
+	bool SetAlarmOut(LPCTSTR strDevInfo, int status);
+	//获取磁盘列表
+	bool GetDiskList();
+	//调用回放器播放文件
+	bool CallHardPlay(LPCTSTR strFileName, int type);
+};
+
