@@ -37,6 +37,7 @@ CJsonParse::~CJsonParse(void)
 		m_pDownloadInfo = NULL;
 	}
 
+
 	CString strKey = _T("");
 	PCONNECTINFO pConn = NULL;
 	POSITION pos = m_mapConnInfo.GetStartPosition(); 

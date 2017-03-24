@@ -32,7 +32,7 @@ CVideoReal::CVideoReal(CDRVideoRealCtrl *pRealCtrl, CWnd* pParent /*=NULL*/)
 	m_played   = false;
 	m_oldWnd   = NULL;
 	m_pZoomDlg = NULL;
-
+	m_videoParam = NULL;
 	m_pHook = NULL;
 
 	//if(Create(IDD_DIALOG_VIDEO, pParent))
@@ -57,8 +57,6 @@ CVideoReal::~CVideoReal()
 		delete m_pZoomDlg;
 		m_pZoomDlg = NULL;
 	}
-
-	CDialogMessageHook::UninstallHook(this->GetSafeHwnd());
 }
 
 void CVideoReal::DoDataExchange(CDataExchange* pDX)

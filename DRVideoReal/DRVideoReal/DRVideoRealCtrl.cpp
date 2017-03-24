@@ -70,6 +70,8 @@ BEGIN_DISPATCH_MAP(CDRVideoRealCtrl, COleControl)
 	DISP_FUNCTION_ID(CDRVideoRealCtrl, "GetDiskList", dispidGetDiskList, GetDiskList, VT_I2, VTS_NONE)
 	DISP_FUNCTION_ID(CDRVideoRealCtrl, "CallHardPlay", dispidCallHardPlay, CallHardPlay, VT_I2, VTS_BSTR VTS_I2)
 	DISP_FUNCTION_ID(CDRVideoRealCtrl, "SplitScreen", dispidSplitScreen, SplitScreen, VT_I2, VTS_I2)
+	DISP_FUNCTION_ID(CDRVideoRealCtrl, "CaptureEx", dispidCaptureEx, CaptureEx, VT_I2, VTS_I2)
+	DISP_FUNCTION_ID(CDRVideoRealCtrl, "PictureToBase64", dispidPictureToBase64, PictureToBase64, VT_BSTR, VTS_BSTR)
 END_DISPATCH_MAP()
 
 
@@ -210,10 +212,10 @@ CDRVideoRealCtrl::~CDRVideoRealCtrl()
 	} 
 	m_mapConnInfo.RemoveAll();
 
-	if (NULL != CJsonParse::getInstance())
+	/*if (NULL != CJsonParse::getInstance())
 	{
 		delete CJsonParse::getInstance();
-	}
+	}*/
 }
 
 
@@ -709,9 +711,9 @@ SHORT CDRVideoRealCtrl::SetScreenStyle(SHORT x, SHORT y, SHORT z)
 		return -1;
 	}
 
-	bool bRet = CInterfaceImpl::getInitance()->SetScreenStyle(x, y, z);
+	SplitScreen(x * y);
 
-	return bRet;
+	return 0;
 }
 
 
@@ -1231,4 +1233,25 @@ __int64 CDRVideoRealCtrl::CompareFileTime(FILETIME time1, FILETIME time2)
 	lb.HighPart = time2.dwHighDateTime;
 
 	return la.QuadPart - lb.QuadPart;
+}
+
+SHORT CDRVideoRealCtrl::CaptureEx(SHORT type)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: 在此添加调度处理程序代码
+
+	return 0;
+}
+
+
+BSTR CDRVideoRealCtrl::PictureToBase64(LPCTSTR fileName)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	CString strResult;
+
+	// TODO: 在此添加调度处理程序代码
+
+	return strResult.AllocSysString();
 }

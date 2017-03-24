@@ -97,6 +97,8 @@ public:
 // 调度和事件 ID
 public:
 	enum {
+		dispidPictureToBase64 = 43L,
+		dispidCaptureEx = 42L,
 		eventidOnSysInfo = 1L,
 		dispidSplitScreen = 41L,
 		dispidCallHardPlay = 40L,
@@ -150,5 +152,7 @@ protected:
 	{
 		FireEvent(eventidOnSysInfo, EVENT_PARAM(VTS_I4 VTS_I4), cpu, mem);
 	}
+	SHORT CaptureEx(SHORT type);
+	BSTR PictureToBase64(LPCTSTR fileName);
 };
 
