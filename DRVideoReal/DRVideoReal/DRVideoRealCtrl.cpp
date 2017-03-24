@@ -7,6 +7,7 @@
 #include "afxdialogex.h"
 #include "JsonParse.h"
 #include "InterfaceImpl.h"
+#include "Base64.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -1240,6 +1241,16 @@ SHORT CDRVideoRealCtrl::CaptureEx(SHORT type)
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
 	// TODO: 在此添加调度处理程序代码
+	CVideoReal *pVideoReal = NULL;
+
+	bool bRet = false;
+	if (m_mapVideoReal.Lookup(m_curWndIndex, pVideoReal))
+	{
+		if (NULL != pVideoReal)
+		{
+			bRet = pVideoReal->CaptureEx(type);
+		}
+	}
 
 	return 0;
 }
@@ -1251,7 +1262,29 @@ BSTR CDRVideoRealCtrl::PictureToBase64(LPCTSTR fileName)
 
 	CString strResult;
 
-	// TODO: 在此添加调度处理程序代码
+	if (NULL == fileName) return NULL;
+	
+	FILE *file = fopen(fileName, "rb");
+	if (NULL == file) return NULL;
 
+	int nRet = fseek(file, 0, SEEK_END);
+	int nLen = ftell(file);
+
+	nRet = fseek(file, 0, SEEK_SET);
+	unsigned char *buff = (unsigned char*)malloc(sizeof(unsigned char) * nLen + 1);
+	fread(buff, 1, nLen, file);
+
+
+	char *Dst = (char*)malloc(sizeof(char) * nLen * 2 + 1);
+
+	CBase64 base64;
+	base64.EncodeBase64(buff, Dst, nLen);
+	strResult.Format("%s", Dst);
+
+	delete buff;
+	delete Dst;
+	buff = NULL;
+	Dst  = NULL;
+	fclose(file);
 	return strResult.AllocSysString();
 }

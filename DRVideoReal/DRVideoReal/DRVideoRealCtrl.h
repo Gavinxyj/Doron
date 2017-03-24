@@ -91,6 +91,8 @@ public:
 	SHORT GetDiskList(void);
 	SHORT CallHardPlay(LPCTSTR strFileName, SHORT type);
 	SHORT SplitScreen(SHORT num);
+	SHORT CaptureEx(SHORT type);
+	BSTR PictureToBase64(LPCTSTR fileName);
 public:
 	static DWORD WINAPI ThreadProc(LPVOID lpParameter);
 	__int64 CompareFileTime(FILETIME time1, FILETIME time2);
@@ -152,7 +154,6 @@ protected:
 	{
 		FireEvent(eventidOnSysInfo, EVENT_PARAM(VTS_I4 VTS_I4), cpu, mem);
 	}
-	SHORT CaptureEx(SHORT type);
-	BSTR PictureToBase64(LPCTSTR fileName);
+	
 };
 

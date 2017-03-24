@@ -24,6 +24,7 @@ protected:
 public:
 	void DrawBorder();
 	bool Capture(LPCTSTR strPath);
+	bool CaptureEx(int nType);
 	bool StartRecord();
 	bool StopRecord();
 	bool StopVideo();

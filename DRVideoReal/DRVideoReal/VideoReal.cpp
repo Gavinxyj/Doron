@@ -195,6 +195,18 @@ bool CVideoReal::Capture(LPCTSTR strPath)
 	return bRet;
 }
 
+bool CVideoReal::CaptureEx(int nType)
+{
+	if (NULL == CInterfaceImpl::getInitance())
+	{
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "CInterfaceImpl::getInitance 实例化失败 ");
+		return false;
+	}
+
+	bool bRet = CInterfaceImpl::getInitance()->CaptureEx(nType, m_nLoginId);
+
+	return bRet;
+}
 bool CVideoReal::StartRecord()
 {
 	if (NULL == CInterfaceImpl::getInitance())
@@ -921,7 +933,6 @@ int CVideoReal::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO:  在此添加您专用的创建代码
 	LONG dwOldStyle = ::GetWindowLongA(this->GetSafeHwnd(),GWL_STYLE);
 
-	LOG4CXX_DEBUG(CJsonParse::getInstance()->logger,"dwOldStyle = " << dwOldStyle);
 	LONG dwNewStyle =  dwOldStyle | (WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN);
 	::SetWindowLong(this->GetSafeHwnd(),GWL_STYLE,dwNewStyle);
 	m_button.Create("", WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT, CRect(0,0,40,40), this, 1025);

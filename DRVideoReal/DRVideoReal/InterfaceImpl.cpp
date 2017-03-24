@@ -140,6 +140,52 @@ bool CInterfaceImpl::Capture(LPCTSTR strPath, int nLoginId)
 	return true;
 }
 
+bool CInterfaceImpl::CaptureEx(int nType, int nLoginId)
+{
+	SYSTEMTIME sysTime;
+	char fileName[256] = {0};
+	BOOL bRet = FALSE;
+	GetLocalTime(&sysTime);
+	Sleep(10);
+	if (0 == nType)
+	{
+		sprintf_s(	
+					fileName,
+					"%s%04d%02d%02d%02d%02d%02d%03d_%s.jpg",
+					"C:\\",
+					sysTime.wYear,
+					sysTime.wMonth,
+					sysTime.wDay,
+					sysTime.wHour,
+					sysTime.wMinute,
+					sysTime.wSecond,
+					sysTime.wMilliseconds,
+					CJsonParse::getInstance()->m_pConnInfo->caption
+					);
+		bRet = dl_sdk_capture_jpg(nLoginId,fileName);
+	}
+	else
+	{
+		sprintf_s(	
+					fileName,
+					"%s%04d%02d%02d%02d%02d%02d%03d_%s.bmp",
+					"C:\\",
+					sysTime.wYear,
+					sysTime.wMonth,
+					sysTime.wDay,
+					sysTime.wHour,
+					sysTime.wMinute,
+					sysTime.wSecond,
+					sysTime.wMilliseconds,
+					CJsonParse::getInstance()->m_pConnInfo->caption
+					);
+		 bRet = dl_sdk_capture_bmp(nLoginId,fileName);
+	}
+	
+	if(!bRet) return false;
+
+	return true;
+}
 bool CInterfaceImpl::PtzControl(Client_PTZ_Command *cmd, int nLoginId)
 {
 	

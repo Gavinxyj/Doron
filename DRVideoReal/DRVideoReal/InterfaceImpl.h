@@ -16,6 +16,8 @@ public:
 public:
 	//抓图
 	bool Capture(LPCTSTR strPath, int nLoginId);
+	//抓拍
+	bool CaptureEx(int nType, int nLoginId);
 	//开始预览
 	long StartVideo(CONNECTINFO *connInfo);
 	//停止预览
