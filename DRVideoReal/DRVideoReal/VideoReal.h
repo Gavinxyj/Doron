@@ -56,6 +56,8 @@ public:
 	VIDEOPARAM *m_videoParam;
 	int m_nZoomId;
 	CPreTranslateMsgHook* m_pHook;
+	CButton m_button;
+	CStatic m_static;
 public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
@@ -75,4 +77,5 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnInitDialog();
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };

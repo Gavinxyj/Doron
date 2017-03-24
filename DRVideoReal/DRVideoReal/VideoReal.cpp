@@ -84,6 +84,7 @@ BEGIN_MESSAGE_MAP(CVideoReal, CDialogEx)
 	ON_COMMAND(ID_MENU_ZOOM, &CVideoReal::OnMenuZoom)
 	ON_COMMAND(ID_MENU_STYLE, &CVideoReal::OnMenuStyle)
 	ON_WM_KILLFOCUS()
+	ON_WM_CREATE()
 END_MESSAGE_MAP()
 
 
@@ -278,7 +279,7 @@ void CVideoReal::OnLButtonDblClk(UINT nFlags, CPoint point)
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	
 	LOG4CXX_INFO(CJsonParse::getInstance()->logger, "OnLButtonDblClk");
-	if (m_splitNum < 4)
+	if (m_splitNum < 4 || rFullScreen)
 	{
 		return;
 	}
@@ -737,21 +738,37 @@ void CVideoReal::OnLButtonUp(UINT nFlags, CPoint point)
 				}
 				else
 				{
-					m_pRealCtrl->m_pVideoReal[m_pRealCtrl->m_preWndIndex]->MoveWindow(rect.left,rect.top, m_pRealCtrl->m_rect.right - rect.left, m_pRealCtrl->m_rect.bottom - rect.top);
-					winStyleTemp->rect.left   = rect.left;
-					winStyleTemp->rect.top    = rect.top;
-					winStyleTemp->rect.right  = m_pRealCtrl->m_rect.right - rect.left;
-					winStyleTemp->rect.bottom = m_pRealCtrl->m_rect.bottom - rect.top;
+					
+					{
+						m_pRealCtrl->m_pVideoReal[m_pRealCtrl->m_preWndIndex]->MoveWindow(rect.left,rect.top, m_pRealCtrl->m_rect.right - rect.left, m_pRealCtrl->m_rect.bottom - rect.top);
+						winStyleTemp->rect.left   = rect.left;
+						winStyleTemp->rect.top    = rect.top;
+						winStyleTemp->rect.right  = m_pRealCtrl->m_rect.right - rect.left;
+						winStyleTemp->rect.bottom = m_pRealCtrl->m_rect.bottom - rect.top;
+					}
+					
 				}
 				
 			}
 			else
 			{
-				m_pRealCtrl->m_pVideoReal[m_pRealCtrl->m_preWndIndex]->MoveWindow(m_pRealCtrl->m_rect.left, rect.top, rect.right - m_pRealCtrl->m_rect.left, m_pRealCtrl->m_rect.bottom - rect.top);
-				winStyleTemp->rect.left   = m_pRealCtrl->m_rect.left;
-				winStyleTemp->rect.top    = rect.top;
-				winStyleTemp->rect.right  = rect.right - m_pRealCtrl->m_rect.left;
-				winStyleTemp->rect.bottom = m_pRealCtrl->m_rect.bottom - rect.top;
+				if (m_pRealCtrl->m_rect.right > rect.right)
+				{
+					m_pRealCtrl->m_pVideoReal[m_pRealCtrl->m_preWndIndex]->MoveWindow(m_pRealCtrl->m_rect.left, rect.top, rect.right, m_pRealCtrl->m_rect.bottom - rect.top);
+					winStyleTemp->rect.left   = m_pRealCtrl->m_rect.left;
+					winStyleTemp->rect.top    = rect.top;
+					winStyleTemp->rect.right  = rect.right;
+					winStyleTemp->rect.bottom = m_pRealCtrl->m_rect.bottom - rect.top;
+				}
+				else
+				{
+					m_pRealCtrl->m_pVideoReal[m_pRealCtrl->m_preWndIndex]->MoveWindow(m_pRealCtrl->m_rect.left, rect.top, rect.right - m_pRealCtrl->m_rect.left, m_pRealCtrl->m_rect.bottom - rect.top);
+					winStyleTemp->rect.left   = m_pRealCtrl->m_rect.left;
+					winStyleTemp->rect.top    = rect.top;
+					winStyleTemp->rect.right  = rect.right - m_pRealCtrl->m_rect.left;
+					winStyleTemp->rect.bottom = m_pRealCtrl->m_rect.bottom - rect.top;
+				}
+				
 			}
 		
 			m_pRealCtrl->m_pVideoReal[m_pRealCtrl->m_preWndIndex]->DrawBorder();
@@ -895,4 +912,21 @@ void CVideoReal::OnKillFocus(CWnd* pNewWnd)
 		rFullScreen = FALSE;
 	}
 	// TODO: 在此处添加消息处理程序代码
+}
+
+
+int CVideoReal::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// TODO:  在此添加您专用的创建代码
+	LONG dwOldStyle = ::GetWindowLongA(this->GetSafeHwnd(),GWL_STYLE);
+
+	LOG4CXX_DEBUG(CJsonParse::getInstance()->logger,"dwOldStyle = " << dwOldStyle);
+	LONG dwNewStyle =  dwOldStyle | (WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN);
+	::SetWindowLong(this->GetSafeHwnd(),GWL_STYLE,dwNewStyle);
+	m_button.Create("", WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT, CRect(0,0,40,40), this, 1025);
+	m_button.ShowWindow(SW_HIDE);
+	return 0;
 }
