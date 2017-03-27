@@ -98,12 +98,12 @@ bool CInterfaceImpl::InitMsSdk()
 	if (NULL == hInstance)
 	{
 		DWORD dwError = GetLastError();
-		LOG4CXX_INFO(CJsonParse::getInstance()->logger, "设置解码库失败！ error = " << dwError);
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "设置解码库失败！ error = " << dwError);
 		return false;
 	}
 	if (!dl_player_set_lib(VH_TYPE_HIK, dllPath.GetBuffer()))
 	{
-		LOG4CXX_INFO(CJsonParse::getInstance()->logger, "设置解码库失败！");
+		LOG4CXX_ERROR(CJsonParse::getInstance()->logger, "设置解码库失败！");
 		return false;
 	}
 	
@@ -114,7 +114,6 @@ bool CInterfaceImpl::Capture(LPCTSTR strPath, int nLoginId)
 {	
 	SYSTEMTIME sysTime;
 	char fileName[256] = {0};
-
 	GetLocalTime(&sysTime);
 	Sleep(10);
 	sprintf_s(	

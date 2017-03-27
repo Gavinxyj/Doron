@@ -37,7 +37,6 @@ CJsonParse::~CJsonParse(void)
 		m_pDownloadInfo = NULL;
 	}
 
-
 	CString strKey = _T("");
 	PCONNECTINFO pConn = NULL;
 	POSITION pos = m_mapConnInfo.GetStartPosition(); 
@@ -350,7 +349,7 @@ bool CJsonParse::parseJsonStr(const char* strJson)
 			strncpy(pOtherInfo->downloadpath, downloadpath.c_str(), downloadpath.length());
 
 			LOG4CXX_DEBUG(logger, "packtime = " << pOtherInfo->packtime << "; capturepath = "<< pOtherInfo->capturepath << "; downloadpath = "<< pOtherInfo->downloadpath);
-			m_pItemData->pDiskPlanInfo = pDiskInfo;
+			m_pItemData->pOtherInfo = pOtherInfo;
 		}
 
 		PSCREENINFO pScreenInfo = new SCREENINFO;

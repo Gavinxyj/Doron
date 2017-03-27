@@ -174,11 +174,15 @@ CDRVideoRealCtrl::CDRVideoRealCtrl()
 	{
 		GetModuleFileName(hModule,m_curMoudlePath, sizeof(m_curMoudlePath));
 	}
-/*
-	DWORD dwThreadId = 0;
-	HANDLE hThread = CreateThread(NULL, 0, ThreadProc, this, 0, &dwThreadId);
-	Sleep(1000);
-	CloseHandle(hThread);*/
+
+	CString strTemp;
+	strTemp.Format("%s",m_curMoudlePath);
+
+	CString strPath;
+	strPath.Format("%s\\", strTemp.Left(strTemp.ReverseFind('\\')));
+
+	memset(m_curMoudlePath, 0, 256);
+	strncpy(m_curMoudlePath, strPath.GetBuffer(0), strPath.GetLength());
 }
 
 
@@ -212,11 +216,6 @@ CDRVideoRealCtrl::~CDRVideoRealCtrl()
 		}
 	} 
 	m_mapConnInfo.RemoveAll();
-
-	/*if (NULL != CJsonParse::getInstance())
-	{
-		delete CJsonParse::getInstance();
-	}*/
 }
 
 

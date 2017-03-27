@@ -588,11 +588,12 @@ void CVideoReal::OnMenuCapture()
 	{
 		if (CJsonParse::getInstance()->m_pItemData->pOtherInfo->capturepath[0] == '\0')
 		{
-			CInterfaceImpl::getInitance()->Capture(m_pRealCtrl->m_curMoudlePath, m_nLoginId);
+			bRet = CInterfaceImpl::getInitance()->Capture(m_pRealCtrl->m_curMoudlePath, m_nLoginId);
 		}
 		else
 		{
 			bRet = CInterfaceImpl::getInitance()->Capture(CJsonParse::getInstance()->m_pItemData->pOtherInfo->capturepath, m_nLoginId);
+			
 		}
 	}
 
