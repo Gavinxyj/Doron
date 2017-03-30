@@ -1110,13 +1110,13 @@ SHORT CDRVideoRealCtrl::SplitScreen(SHORT num)
 
 		GetWindowRect(&rect);
 
-		nWidth = (rect.Width()- 4*(nSqrNum-1) )/ nSqrNum;
-		nHight = (rect.Height()-4*(nSqrNum-1))/nSqrNum;
+		nWidth = (rect.Width()- 2*(nSqrNum-1) )/ nSqrNum;
+		nHight = (rect.Height()-2*(nSqrNum-1))/nSqrNum;
 
 		for (int nLoop = 0; nLoop < num; nLoop ++)
 		{
 			m_pVideoReal[nLoop]->m_splitNum = num;
-			m_pVideoReal[nLoop]->MoveWindow((nLoop % nSqrNum)*(nWidth + 4),(nLoop / nSqrNum)*(nHight + 4),nWidth,nHight,TRUE);
+			m_pVideoReal[nLoop]->MoveWindow((nLoop % nSqrNum)*(nWidth + 2),(nLoop / nSqrNum)*(nHight + 2),nWidth,nHight,TRUE);
 			m_pVideoReal[nLoop]->m_nWidth = nWidth;
 			m_pVideoReal[nLoop]->m_nHight = nHight;
 			
@@ -1138,13 +1138,13 @@ SHORT CDRVideoRealCtrl::SplitScreen(SHORT num)
 
 		GetWindowRect(&rect);
 
-		nWidth = (rect.Width()- 4*(nSqrNum-1) )/ nSqrNum;
-		nHight = (rect.Height()-4*(nSqrNum-1))/nSqrNum;
+		nWidth = (rect.Width()- 2*(nSqrNum-1) )/ nSqrNum;
+		nHight = (rect.Height()-2*(nSqrNum-1))/nSqrNum;
 
 		for (int nLoop = 0; nLoop < nSqrNum * nSqrNum; nLoop ++)
 		{
 			m_pVideoReal[nLoop]->m_splitNum = num;
-			m_pVideoReal[nLoop]->MoveWindow((nLoop % nSqrNum)*(nWidth + 4),(nLoop / nSqrNum)*(nHight + 4),nWidth,nHight,TRUE);
+			m_pVideoReal[nLoop]->MoveWindow((nLoop % nSqrNum)*(nWidth + 2),(nLoop / nSqrNum)*(nHight + 2),nWidth,nHight,TRUE);
 			m_pVideoReal[nLoop]->m_nWidth = nWidth;
 			m_pVideoReal[nLoop]->m_nHight = nHight;
 			m_pVideoReal[nLoop]->ShowWindow(SW_SHOW);
@@ -1162,7 +1162,7 @@ SHORT CDRVideoRealCtrl::SplitScreen(SHORT num)
 			}
 			
 		}
-		m_pVideoReal[0]->MoveWindow(0,0,nWidth * (nSqrNum - 1) + (nSqrNum - 2) * 4, nHight * (nSqrNum - 1) + (nSqrNum - 2) * 4,TRUE);
+		m_pVideoReal[0]->MoveWindow(0,0,nWidth * (nSqrNum - 1) + (nSqrNum - 2) * 4 - (nSqrNum - 2) * 2, nHight * (nSqrNum - 1) + (nSqrNum - 2) * 4 - (nSqrNum - 2) * 2,TRUE);
 		m_pVideoReal[0]->ShowWindow(SW_SHOW);
 		m_pVideoReal[0]->DrawBorder();
 	}
