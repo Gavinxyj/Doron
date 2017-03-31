@@ -3,6 +3,7 @@
 // DRVideoRealCtrl.h : CDRVideoRealCtrl ActiveX 控件类的声明。
 #include "VideoReal.h"
 // CDRVideoRealCtrl : 有关实现的信息，请参阅 DRVideoRealCtrl.cpp。
+#define  WM_RECVDATA	(WM_USER + 1)
 
 class CDRVideoRealCtrl : public COleControl
 {
@@ -149,6 +150,7 @@ protected:
 public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg LRESULT OnRecvMsg(WPARAM wparam, LPARAM lparam);
 protected:	
 	void OnSysInfo(LONG cpu, LONG mem)
 	{

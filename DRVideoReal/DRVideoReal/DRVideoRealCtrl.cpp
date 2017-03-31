@@ -12,6 +12,7 @@
 #define new DEBUG_NEW
 #endif
 
+static int nFlag = true;
 IMPLEMENT_DYNCREATE(CDRVideoRealCtrl, COleControl)
 
 
@@ -22,6 +23,7 @@ BEGIN_MESSAGE_MAP(CDRVideoRealCtrl, COleControl)
 	ON_OLEVERB(AFX_IDS_VERB_PROPERTIES, OnProperties)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_CREATE()
+	ON_MESSAGE(WM_RECVDATA, OnRecvMsg)
 END_MESSAGE_MAP()
 
 
@@ -216,6 +218,7 @@ CDRVideoRealCtrl::~CDRVideoRealCtrl()
 		}
 	} 
 	m_mapConnInfo.RemoveAll();
+	nFlag = false;
 }
 
 
@@ -1084,7 +1087,10 @@ int CDRVideoRealCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_pVideoReal[0]->MoveWindow(0,0,rect.Width(),rect.Height());
 	m_pVideoReal[0]->ShowWindow(SW_SHOW);
 
-	
+	DWORD dwThreadId = 0;
+	HANDLE hThread = CreateThread(NULL, 0, ThreadProc, this, 0, &dwThreadId);
+	Sleep(100);
+	CloseHandle(hThread);
 	return 0;
 }
 
@@ -1196,7 +1202,7 @@ DWORD WINAPI CDRVideoRealCtrl::ThreadProc(LPVOID lpParameter)
 
 	hEvent = CreateEvent (NULL,FALSE,FALSE,NULL); // 初始值为 nonsignaled ，并且每次触发后自动设置为nonsignaled
 
-	while (TRUE)
+	while (TRUE && nFlag)
 	{
 		WaitForSingleObject( hEvent,1000 ); //等待500毫秒
 		res = GetSystemTimes( &idleTime, &kernelTime, &userTime );
@@ -1215,7 +1221,13 @@ DWORD WINAPI CDRVideoRealCtrl::ThreadProc(LPVOID lpParameter)
 
 		if (cpu > 0)
 		{
-			pRealCtrl->OnSysInfo(cpu, ms.dwMemoryLoad);
+		//	pRealCtrl->OnSysInfo(cpu, ms.dwMemoryLoad);
+			char *buff = new char[32];
+			memset(buff, 0, 32);
+			CString strResult;
+			strResult.Format("%d|%d", cpu, ms.dwMemoryLoad);
+			memcpy(buff, strResult.GetBuffer(0), strResult.GetLength());
+			::PostMessage(pRealCtrl->GetSafeHwnd(),WM_RECVDATA, 0, (LPARAM)(LPCTSTR)buff);
 			LOG4CXX_DEBUG(CJsonParse::getInstance()->logger, "cpu = " << cpu << "memcpy = " << ms.dwMemoryLoad);
 		}
 		
@@ -1286,4 +1298,23 @@ BSTR CDRVideoRealCtrl::PictureToBase64(LPCTSTR fileName)
 	Dst  = NULL;
 	fclose(file);
 	return strResult.AllocSysString();
+}
+
+LRESULT CDRVideoRealCtrl::OnRecvMsg(WPARAM wparam, LPARAM lparam)
+{
+	char *strData = (char*)lparam;
+	char *token = NULL;
+	token = strtok(strData,"|");
+	long cpu	= 0;
+	long memery = 0;
+	
+	cpu = atoi(token);
+	token = strtok(NULL, "|");
+	memery = atoi(token);
+
+	OnSysInfo(cpu, memery);
+
+	delete strData;
+	strData = NULL;
+	return 0;
 }
