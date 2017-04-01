@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0555 */
-/* at Fri Mar 31 13:38:20 2017
+/* at Sat Apr 01 13:50:31 2017
  */
 /* Compiler settings for DRVideoReal.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 

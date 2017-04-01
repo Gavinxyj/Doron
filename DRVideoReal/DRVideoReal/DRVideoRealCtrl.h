@@ -50,6 +50,9 @@ public:
 	CPoint m_prePoint;
 	std::vector<WINSTYLE>m_oldRect;
 	CMap<int, int, PWINSTYLE, PWINSTYLE>m_mapRect;
+	DWORD m_dwThreadId;
+	bool  m_bFlag;
+	HANDLE m_hThread;
 public:
 	SHORT Init(LPCTSTR strJsonParam);
 	SHORT Capture(LPCTSTR strPath);

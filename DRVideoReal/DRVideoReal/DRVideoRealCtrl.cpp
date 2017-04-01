@@ -11,8 +11,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
-static int nFlag = true;
+CRITICAL_SECTION g_criSection;
 IMPLEMENT_DYNCREATE(CDRVideoRealCtrl, COleControl)
 
 
@@ -166,6 +165,7 @@ CDRVideoRealCtrl::CDRVideoRealCtrl()
 	// TODO: 在此初始化控件的实例数据。
 	m_curWndIndex = 0;
 	m_preWndIndex = 0;
+	m_bFlag		  = true;
 	m_mapVideoReal.RemoveAll();
 	m_mapConnInfo.RemoveAll();
 	m_oldRect.clear();
@@ -185,6 +185,7 @@ CDRVideoRealCtrl::CDRVideoRealCtrl()
 
 	memset(m_curMoudlePath, 0, 256);
 	strncpy(m_curMoudlePath, strPath.GetBuffer(0), strPath.GetLength());
+	InitializeCriticalSection(&g_criSection); 
 }
 
 
@@ -194,7 +195,9 @@ CDRVideoRealCtrl::CDRVideoRealCtrl()
 CDRVideoRealCtrl::~CDRVideoRealCtrl()
 {
 	// TODO: 在此清理控件的实例数据。
-
+	m_bFlag = false;
+	InitializeCriticalSection(&g_criSection); 
+	
 	for (int nLoop = 0; nLoop < MAX_CHILDWND; nLoop ++)
 	{
 		if (NULL != m_pVideoReal[nLoop])
@@ -218,7 +221,12 @@ CDRVideoRealCtrl::~CDRVideoRealCtrl()
 		}
 	} 
 	m_mapConnInfo.RemoveAll();
-	nFlag = false;
+	CloseHandle(m_hThread);
+	/************************************************************************/
+	/* 这里必须休眠>=1s，因为线程中每秒钟执行一次内存和cpu使用率的计算，若是休眠时间小于1s会
+	/* 照成线程退出不了的问题*/
+	/************************************************************************/
+	Sleep(1100);
 }
 
 
@@ -1087,10 +1095,11 @@ int CDRVideoRealCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_pVideoReal[0]->MoveWindow(0,0,rect.Width(),rect.Height());
 	m_pVideoReal[0]->ShowWindow(SW_SHOW);
 
-	DWORD dwThreadId = 0;
-	HANDLE hThread = CreateThread(NULL, 0, ThreadProc, this, 0, &dwThreadId);
+	//DWORD dwThreadId = 0;
+	
+	m_hThread = CreateThread(NULL, 0, ThreadProc, this, 0, &m_dwThreadId);
 	Sleep(100);
-	CloseHandle(hThread);
+	//CloseHandle(m_hThread);
 	return 0;
 }
 
@@ -1201,10 +1210,12 @@ DWORD WINAPI CDRVideoRealCtrl::ThreadProc(LPVOID lpParameter)
 	preuserTime = userTime ;
 
 	hEvent = CreateEvent (NULL,FALSE,FALSE,NULL); // 初始值为 nonsignaled ，并且每次触发后自动设置为nonsignaled
-
-	while (TRUE && nFlag)
+	LOG4CXX_DEBUG(CJsonParse::getInstance()->logger, "线程开始 threadId = " << pRealCtrl->m_dwThreadId);
+	while (TRUE)
 	{
-		WaitForSingleObject( hEvent,1000 ); //等待500毫秒
+		if (!pRealCtrl->m_bFlag) break;
+		
+		WaitForSingleObject( hEvent,1000 ); //等待1000毫秒
 		res = GetSystemTimes( &idleTime, &kernelTime, &userTime );
 
 		int idle   = pRealCtrl->CompareFileTime( preidleTime,idleTime);
@@ -1228,20 +1239,20 @@ DWORD WINAPI CDRVideoRealCtrl::ThreadProc(LPVOID lpParameter)
 			strResult.Format("%d|%d", cpu, ms.dwMemoryLoad);
 			memcpy(buff, strResult.GetBuffer(0), strResult.GetLength());
 			::PostMessage(pRealCtrl->GetSafeHwnd(),WM_RECVDATA, 0, (LPARAM)(LPCTSTR)buff);
-			LOG4CXX_DEBUG(CJsonParse::getInstance()->logger, "cpu = " << cpu << "memcpy = " << ms.dwMemoryLoad);
+		//	LOG4CXX_DEBUG(CJsonParse::getInstance()->logger, "cpu = " << cpu << "memcpy = " << ms.dwMemoryLoad);
 		}
 		
 	}
-
+	LOG4CXX_DEBUG(CJsonParse::getInstance()->logger, "线程退出 threadId = " << pRealCtrl->m_dwThreadId);
 	return 0;
 }
 
 __int64 CDRVideoRealCtrl::CompareFileTime(FILETIME time1, FILETIME time2)
 {
 	LARGE_INTEGER la, lb;
-	la.LowPart = time1.dwLowDateTime;
+	la.LowPart  = time1.dwLowDateTime;
 	la.HighPart = time1.dwHighDateTime;
-	lb.LowPart = time2.dwLowDateTime;
+	lb.LowPart  = time2.dwLowDateTime;
 	lb.HighPart = time2.dwHighDateTime;
 
 	return la.QuadPart - lb.QuadPart;
