@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "OracelOperator.h"
-#include "HttpRequire.h"
+
 
 COracelOperator::COracelOperator(void)
 {
@@ -20,6 +20,7 @@ COracelOperator::COracelOperator(void)
 		return ;
 	}
 	strPath.Format("%s\\config\\config.properties", szPath);
+	//AfxMessageBox(strPath);
 	PropertyConfigurator::configure(strPath.GetBuffer());
 	logger = Logger::getLogger("debugLogger");
 }
@@ -55,7 +56,7 @@ void COracelOperator::ConnectionOracle()
 	}
 }
 
-void COracelOperator::queryData(std::string strSql)
+void COracelOperator::queryData()
 {
 	Statement *pStmt = NULL;
 	ResultSet *rs = NULL;
@@ -74,6 +75,7 @@ void COracelOperator::queryData(std::string strSql)
 					std::string sxjbh = rs->getString(1);
 					std::string sbbh = rs->getString(2);
 					m_mapData.insert(make_pair(sxjbh, sbbh));
+					
 				}
 				pStmt->closeResultSet(rs);
 				m_pConn->terminateStatement(pStmt);
