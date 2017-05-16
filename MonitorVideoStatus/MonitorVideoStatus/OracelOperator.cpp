@@ -20,7 +20,7 @@ COracelOperator::COracelOperator(void)
 		return ;
 	}
 	strPath.Format("%s\\config\\config.properties", szPath);
-	//AfxMessageBox(strPath);
+	
 	PropertyConfigurator::configure(strPath.GetBuffer());
 	logger = Logger::getLogger("debugLogger");
 }
@@ -41,11 +41,13 @@ COracelOperator::~COracelOperator(void)
 
 void COracelOperator::ConnectionOracle()
 {
-	m_pEnv = Environment::createEnvironment(Environment::DEFAULT);//创建连接对象指针 
-	std::string name = "doron_tomp";
-	std::string pass = "doron1234~";
-	std::string srvName = "192.168.102.37:1521/tomp";
 
+	m_pEnv = Environment::createEnvironment(Environment::DEFAULT);//创建连接对象指针 
+
+	std::string name = "doron_tomp";
+	std::string pass = "doron1234";
+	//std::string srvName = "192.168.102.37:1521/tomp";
+	std::string srvName = "13.53.147.230:1521/dorondb";
 	try
 	{
 		m_pConn = m_pEnv->createConnection(name, pass, srvName);	
@@ -60,7 +62,7 @@ void COracelOperator::queryData()
 {
 	Statement *pStmt = NULL;
 	ResultSet *rs = NULL;
-	std::string sql = "select sxjbh, sbbh from V_TDMS_TGS_CAM";
+	std::string sql = "select sxjbh, sbbh from V_TDMS_CAM";
 	try
 	{
 		if (NULL != m_pConn)
@@ -75,7 +77,7 @@ void COracelOperator::queryData()
 					std::string sxjbh = rs->getString(1);
 					std::string sbbh = rs->getString(2);
 					m_mapData.insert(make_pair(sxjbh, sbbh));
-					
+					LOG4CXX_DEBUG(logger, "sxjbh ="<<(sxjbh.c_str())<<";sbbh = "<< (sbbh.c_str()));
 				}
 				pStmt->closeResultSet(rs);
 				m_pConn->terminateStatement(pStmt);

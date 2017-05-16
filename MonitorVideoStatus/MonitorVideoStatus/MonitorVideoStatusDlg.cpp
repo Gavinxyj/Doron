@@ -114,7 +114,7 @@ BOOL CMonitorVideoStatusDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 
-	m_loginHandle = Platform::Plat_LoginCMS("13.53.147.200","admin", "Doron1234","8011");
+/*	m_loginHandle = Platform::Plat_LoginCMS("13.53.147.200","admin", "Doron1234","8011");
 
 	if (-1 == m_loginHandle)
 	{
@@ -126,7 +126,7 @@ BOOL CMonitorVideoStatusDlg::OnInitDialog()
 
 	DWORD dwThreadId = 0;
 	m_hThread = CreateThread(NULL, 0, ThreadProc, this, 0, &dwThreadId);
-	Sleep(1000);
+	Sleep(1000);*/
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
